@@ -9,6 +9,8 @@ const Message = require('./models/message.models');
 const fs = require('fs');
 const notificationRoutes = require('./routers/notificationsRoutes')
 
+
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -72,3 +74,45 @@ wss.on('connection', (ws) => {
     }
   });
 });
+
+
+// this is just for testing signin and signup purpose no need to add routes
+
+const SignUser = require('./models/Sign_users.models');
+
+app.post('/api/signin', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ msg: "Please enter all fields" });
+  }
+  try {
+    const Suser = await SignUser.findOne({ email: email });
+    if (!Suser) {
+      return res.status(400).json({ msg: "User does not exist" });
+    }
+    const isMatch = await bcrypt.compare(password, Suser.password);
+    if (!isMatch) {
+      return res.status(400).json({ msg: "Invalid credentials" });
+    }
+    console.log(Suser);
+    res.status(201).json({ Suser });
+  }
+  catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/signup', async (req, res) => {
+  // console.log("req came : ",req.body);
+  const { Email } = req.body;
+  console.log("email : ",Email);
+  const existingUser = await SignUser.findOne({ Email });
+  if (existingUser) {
+    return res.status(404).json({ msg: "User already exists" });
+  }
+  const newSuser = SignUser(req.body);
+  await newSuser.save();
+  console.log("user added successfully ",newSuser);
+  res.status(201).json({ status: "Success", data: { user: newSuser } });
+});
+
