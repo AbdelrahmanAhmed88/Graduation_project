@@ -11,27 +11,25 @@ export default function SignInScreen() {
 
   const handleSignIn = async (formData) => {
     try {
-      const { username, password } = formData;
+      const {email, password} = formData;
+      const userData = { Email: email, Password: password };    
 
-      // Search for user by username (assuming username is unique)
-      const users = await AsyncStorage.getAllKeys();
-      let foundUser = null;
-      for (let key of users) {
-        const userData = JSON.parse(await AsyncStorage.getItem(key));
-        if (userData.email === username && userData.password === password) {
-          foundUser = userData;
-          break;
-        }
-      }
-
-      if (foundUser) {
+      const response = await axios.post(`http://${ip}:5000/api/signin`,userData);
+      const users = response.data;
+      if (users) {
         Alert.alert('Success', 'Sign in successful!');
-        navigation.navigate('Home');
+        navigation.navigate('Garage');
       } else {
         Alert.alert('Error', 'Invalid email or password!');
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to sign in. Please try again.');
+      if (error.response.status === 404) {
+        Alert.alert('Error', 'User not found.');
+      } else {
+        // Handle other errors (network issues, unexpected responses, etc.)
+        console.log(error);
+        Alert.alert('Error', 'Failed to sign in. Please try again.');
+      }
     }
   };
 
@@ -42,7 +40,7 @@ export default function SignInScreen() {
           <Text style={styles.title}>Welcome Back!</Text>
           <Text style={styles.subtitle}>Please sign in to your account</Text>
           <CustomForm
-            fields={[{ name: 'username', label: 'Email' }, { name: 'password', label: 'Password' }]}
+            fields={[{ name: 'email', label: 'Email' }, { name: 'password', label: 'Password' }]}
             onSubmit={handleSignIn}
             buttonText="Sign In"
           />

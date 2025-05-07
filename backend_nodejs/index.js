@@ -81,18 +81,14 @@ wss.on('connection', (ws) => {
 const SignUser = require('./models/Sign_users.models');
 
 app.post('/api/signin', async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ msg: "Please enter all fields" });
+  const { Email, Password } = req.body;
+  if (!Email || !Password) {
+    return res.status(404).json({ msg: "Please enter all fields" });
   }
   try {
-    const Suser = await SignUser.findOne({ email: email });
+    const Suser = await SignUser.findOne({ Email: Email , Password: Password  });
     if (!Suser) {
-      return res.status(400).json({ msg: "User does not exist" });
-    }
-    const isMatch = await bcrypt.compare(password, Suser.password);
-    if (!isMatch) {
-      return res.status(400).json({ msg: "Invalid credentials" });
+      return res.status(404).json({ msg: "User does not exist" });
     }
     console.log(Suser);
     res.status(201).json({ Suser });
