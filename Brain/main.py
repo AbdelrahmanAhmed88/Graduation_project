@@ -1,0 +1,141 @@
+from serial_reader.reader import SerialReader
+from Models.faceCheckModelExec import face_check, store_encoding
+import subprocess
+from config import vehicle_config
+import webbrowser
+import time
+
+#websockets for real-time notifications
+from websocket_client.VehicleWebSocketClient import VehicleWebSocketClient
+
+vehicle_client = VehicleWebSocketClient(vehicle_config.VIN,vehicle_config.WEB_SOCKET_SERVER_URL)
+vehicle_client.connect()
+time.sleep(1)
+
+
+
+#apis
+from api_client.backend_api import validate_nfc, get_user_data
+from api_client.get_images import download_images_for_car  
+
+reader = None  # Global reader
+
+driver_info = {}
+
+
+def my_callback(userID):
+    print(f"Identity detected: {userID}")
+    driver_info = get_user_data(userID)
+    if(driver_info):
+        reader.send("U")
+        auth(userID,vehicle_config.VIN)
+    else:
+        reader.send("N")
+
+def openFirstTimeScreen():
+    print(f"Opening first time screen")
+    url = f"http://localhost:3000/?v={vehicle_config.VIN}&c={vehicle_config.CAR_MODEL}"
+    
+    try:
+        # Use webbrowser to open the URL directly in the default browser
+        webbrowser.open(url)
+        
+        # print("URL opened successfully")
+    except Exception as e:
+        print(f"Error opening the website: {e}")
+
+def auth(user_id, vehicle_id):
+    print(f"Opening website for user {user_id}")
+    vehicle_client.connect()
+    url = f"http://localhost:3000/Firsttimelogin2/Firsttimelogin3/HomePage?u={user_id}&v={vehicle_id}"
+    
+    try:
+        # Use webbrowser to open the URL directly in the default browser
+        webbrowser.open(url)
+        time.sleep(1)
+        vehicle_client.send_message("Driver authentication successful. You can now start the car.")
+        
+        # print("URL opened successfully")
+    except Exception as e:
+        print(f"Error opening the website: {e}")
+
+def masterCardAccessHomepage():
+    print(f"Opening Homepage for mastercard")
+    url = f"http://localhost:3000/Firsttimelogin2/Firsttimelogin3/HomePage?v={vehicle_config.VIN}"
+    
+    try:
+        # Use webbrowser to open the URL directly in the default browser
+        webbrowser.open(url)
+        
+        # print("URL opened successfully")
+    except Exception as e:
+        print(f"Error opening the website: {e}")
+
+
+
+# Callback function to handle vehicle ID
+def handle_vehicle_id(vehicle_id):
+    print(f"🚗 Vehicle ID received: {vehicle_id}")
+    # You can add any custom logic here for the vehicle ID
+    # Example: Send it to a backend API, update a database, etc.
+
+# Callback function to handle user signal (e.g., when 'u' is received)
+def handle_user_signal():
+    print("⚡ User signal received")
+    # Add custom logic for when a user signal is received
+    # Example: Trigger some action, like a user interface update or another system event
+
+# Callback function to handle NFC ID (when 'n' is received)
+def handle_nfc_id(nfc_id):
+    print(f"NFC ID received: {nfc_id}")
+    
+    if nfc_id in vehicle_config.MASTER_CARDS:
+        masterCardAccessHomepage()
+    else:
+        data = validate_nfc(nfc_id,vehicle_config.VIN)
+        if(data):
+            reader.send("O")
+            download_images_for_car(vehicle_config.VIN)
+            store_encoding()
+            face_check(my_callback)
+        else:
+            reader.send("N")
+    #print(data["nfc"]["status"])
+
+# Callback function to handle commands (when 'c' is received)
+def handle_command(command):
+    if(command == 'exit'):
+        vehicle_client.send_message("Goodbye! Don’t forget your phone")
+        # print("Don't Forget your phone :D")
+        vehicle_client.close()
+    # Add your command handling logic here
+    # Example: Control actuators, send responses, etc.
+
+# Main program execution
+def main():
+    if(vehicle_config.FIRST_START == True):
+        openFirstTimeScreen()
+
+    # Create a SerialReader instance
+    global reader
+    reader = SerialReader(port=vehicle_config.SERIAL_PORT, baudrate=vehicle_config.BAUD_RATE, delimiter=vehicle_config.DELIMITER)
+
+    # Assign the callback functions to handle each message type
+    reader.on_vehicle_id = handle_vehicle_id
+    reader.on_user_signal = handle_user_signal
+    reader.on_nfc_id = handle_nfc_id
+    reader.on_command = handle_command
+
+    # Start reading from the serial port
+    reader.start()
+
+    # Keep the main thread alive (otherwise the program will exit immediately)
+    try:
+        while True:
+            pass
+    except KeyboardInterrupt:
+        print("Program interrupted by user.")
+        # You can stop the reader or perform cleanup here if needed
+
+if __name__ == "__main__":
+    main()

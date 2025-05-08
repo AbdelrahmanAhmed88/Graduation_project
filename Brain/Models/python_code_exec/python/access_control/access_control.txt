@@ -1,0 +1,6 @@
+1- sudo apt-get install build-essential cmake (or) Install Visual Studio (Community version is sufficient) with the "Desktop development with C++" workload.
+
+2- pip install "E:\study\Graduation\access control\dlib-19.24.99-cp312-cp312-win_amd64.whl"
+
+3- pip install face_recognition opencv-python numpy ultralytics
+

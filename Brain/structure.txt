@@ -1,0 +1,22 @@
+car_brain_project/
+├── main.py                      # Entry point to run the system
+├── config/
+│   └── settings.py              # Global configs: COM ports, API endpoints, model paths, etc.
+├── data/
+│   ├── raw/                     # Optional: store raw sensor dumps if needed
+│   └── processed/               # Optional: processed sensor logs, AI outputs, etc.
+├── serial_interface/
+│   └── reader.py                # Reads data from ESP via USB/serial
+├── ai_engine/
+│   ├── model_loader.py          # Load and prepare AI model
+│   └── predictor.py             # Inference logic
+├── carla_interface/
+│   └── feedback_handler.py      # Connects to CARLA, sends data, receives feedback
+├── decision_maker/
+│   └── controller.py            # Makes decisions based on AI + CARLA feedback
+├── api_client/
+│   └── backend_api.py           # Talks to your Node.js backend
+├── utils/
+│   └── helpers.py               # Logging, preprocessing, etc.
+├── requirements.txt             # All dependencies
+└── README.md
