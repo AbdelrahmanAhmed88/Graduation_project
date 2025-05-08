@@ -1,0 +1,151 @@
+.app-container {
+  display: flex;
+  height: 100vh; /* جعل الصفحة تملأ الشاشة بالكامل */
+}
+
+/*  ضبط الصفحة الرئيسية بحيث تملأ الشاشة */
+.homepage-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 30px;
+  margin-top: 105px;
+}
+
+/*  السيارة في اليسار وتكبير حجمها */
+.car-container {
+  width: 700px; /*  زيادة حجم السيارة */
+  background: #111;
+  padding: 40px;
+  border-radius: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-left: 200px; /*  زيادة المسافة من اليسار */
+}
+
+.car-image {
+  width: 100%;
+  height: auto;
+}
+
+/*  حالة الأبواب والأنوار */
+.status-text {
+  font-size: 28px; /*  تكبير الخط */
+  margin-top: 20px;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: white;
+}
+
+/*  السائق + الإيموجي + الإشعارات */
+.driver-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  margin-left: 50px; /*  زيادة المسافة من اليسار */
+  margin-right: 180px;
+}
+
+/*  جعل الإيموجي وصورة السائق بجانب بعض */
+.driver-details {
+  display: flex;
+  align-items: center;
+  gap: 50px; /*  زيادة المسافة بين الإيموجي وصورة السائق */
+}
+
+/*  تكبير الإيموجي */
+.status-box {
+  background: #111;
+  width: 180px;
+  height: 180px;
+  padding: 40px;
+  border-radius: 13px;
+  text-align: center;
+}
+
+.emoji-image {
+  width: 150px; /* زيادة حجم الإيموجي */
+  height: 150px;
+}
+
+.status-text {
+  font-size: 32px; /*  تكبير الخط */
+  font-weight: bold;
+  color: white;
+  margin: 0;
+}
+
+/*  تكبير صورة السائق */
+.profilee-image-container {
+  position: relative;
+  width: 220px; /*  حجم أكبر */
+  height: 220px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #111; /*  خلفية شفافة */
+  border-radius: 13px; /*  حواف دائرية مثل باقي العناصر */
+  padding: 20px; /*  مساحة داخلية */
+}
+
+.profilee-frame {
+  position: absolute;
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+}
+
+.profilee-image {
+  width: 200px; /*  زيادة حجم الصورة */
+  height: 200px;
+  border-radius: 50%;
+  position: absolute;
+}
+
+/*  تكبير الإشعارات */
+.notifications {
+  width: 500px; /*  تكبير عرض الإشعارات */
+  background: #111;
+  padding: 30px;
+  border-radius: 13px;
+  text-align: center;
+}
+
+.notifications h3 {
+  font-size: 30px; /*  تكبير عنوان الإشعارات */
+  margin-bottom: 20px;
+  color: white;
+}
+
+.notification-item {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  border-radius: 13px;
+  font-size: 24px; /*  تكبير نص الإشعارات */
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/*  تنبيه بحالة السائق إذا كان ناعسًا */
+.notification-item.warning {
+  background: #ff0000;
+  color: white;
+  font-weight: bold;
+  animation: blink 1s infinite alternate;
+}
+
+@keyframes blink {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.5;
+  }
+}

@@ -69,6 +69,31 @@ exports.addUserToVehicle = async (req, res) => {
     }
 };
 
+exports.deleteUserFromVehicle = async (req, res) => {
+    const { vehicleId, userId } = req.params;
+  
+    try {
+      const result = await VEHICLE.findOneAndUpdate(
+        { vehicle_id: vehicleId },
+        { $pull: { users: { user_id: userId } } },
+        { new: true } // return the updated document
+      );
+  
+      if (!result) {
+        return res.status(404).json({ success: false, message: "Vehicle not found" });
+      }
+  
+      return res.status(200).json({
+        success: true,
+        message: "User removed successfully",
+        vehicle: result
+      });
+    } catch (error) {
+      return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  };
+  
+
 exports.setVehicleAdmin = async (req, res) => {
     try {
         const { vehicle_id, name, email, phone_number} = req.body;

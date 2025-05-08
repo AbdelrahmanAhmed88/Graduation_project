@@ -1,0 +1,13 @@
+/* App.css */
+.app-container {
+  min-height: 100vh; /* الحد الأدنى لارتفاع النافذة */
+  display: flex;
+  justify-content: center; /* وضع الصورة في المنتصف أفقيًا */
+  align-items: center; /* وضع الصورة في المنتصف عموديًا */
+  background-image: url('./Background.png'); /* الخلفية */
+  background-size: cover; /* ملء الشاشة بالخلفية */
+  background-position: center; /* تمركز الخلفية */
+  background-repeat: no-repeat; /* منع التكرار */
+  background-attachment: fixed; /* تثبيت الخلفية عند التمرير */
+}
+

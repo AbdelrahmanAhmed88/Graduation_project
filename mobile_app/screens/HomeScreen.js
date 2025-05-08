@@ -5,7 +5,7 @@ import { useRoute } from '@react-navigation/native';
 import colors  from '../constants/colors'; 
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Feather from '@expo/vector-icons/Feather';
-
+import axios from 'axios';
 import * as Notifications from 'expo-notifications';
 
 
@@ -211,7 +211,9 @@ export default function HomeScreen({ navigation }) {
         <TouchableOpacity>
           <FontAwesome6 name="car" size={30} color="white" />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity 
+          onPress={() => {navigation.navigate('settings',{vin: vin})}}
+        >
           <Feather name="settings" size={30} color="white" />
         </TouchableOpacity>
       </View>

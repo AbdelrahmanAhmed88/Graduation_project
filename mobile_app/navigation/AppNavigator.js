@@ -9,6 +9,8 @@ import ControlScreen from '../screens/ControlScreen';
 import userProfileControl from '../screens/user_profile';
 import Signin from '../screens/SignIn';
 import Signup from '../screens/SignUp';
+import settingsScreen from '../screens/settings';
+import vehicleDrivers from '../screens/vehicleDrivers';
 
 const Stack = createNativeStackNavigator();
 
@@ -27,6 +29,8 @@ export default function App() {
         <Stack.Screen name="userProfile" component={userProfileControl} options={{lazy:true}} />
         <Stack.Screen name="SignIn" component={Signin} options={{lazy:true}} />
         <Stack.Screen name="SignUp" component={Signup} options={{lazy:true}} />
+        <Stack.Screen name="settings" component={settingsScreen} options={{lazy:true}} />
+        <Stack.Screen name="vehicleDrivers" component={vehicleDrivers} options={{lazy:true}} />
       </Stack.Navigator>
     </NavigationContainer>
   );

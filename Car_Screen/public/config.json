@@ -1,0 +1,7 @@
+{
+    "vin": "5YJ3E1EA7HF000314",
+    "serial_port": "COM9",
+    "baud_rate": 115200,
+    "timeout": 1,
+    "delimiter": "!"
+  }

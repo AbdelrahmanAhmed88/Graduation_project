@@ -364,5 +364,7 @@ const styles = StyleSheet.create({
     color: 'gray',
     marginTop: 20,
     textDecorationLine: 'underline',
+    marginBottom: 40,
+    color: colors.white,
   },
 });

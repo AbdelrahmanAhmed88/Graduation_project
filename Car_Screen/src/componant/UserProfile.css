@@ -1,0 +1,198 @@
+/* Main Container */
+.profile-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 700px;
+  width: 1400px;
+  margin: auto;
+  padding: 40px;
+  background: #111;
+  border-radius: 10px;
+  margin-top: 130px;
+}
+
+/* Left Section */
+.profile-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 30%;
+  text-align: center;
+}
+
+.profile-imagee {
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  
+}
+
+.upload-label {
+  cursor: pointer;
+  background: #222;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  align-content: center;
+  font-size: 35px;
+  color: #aaa;
+  height: 300px;
+  width: 300px;
+  object-fit: cover;
+}
+
+.hidden {
+  display: none;
+  
+}
+
+.input-field {
+  margin-top: 10px;
+  padding: 10px;
+  width: 100%;
+  background: transparent;
+  color: white;
+  border: none;
+  font-size: 25px;
+  font-weight: bold;
+  text-align: center;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  
+}
+
+/* Separator Line */
+.separator {
+  width: 1px;
+  height: 99%;
+  background: #D97D64;
+  margin: 0 30px;
+ 
+}
+
+/* Right Section */
+.profile-right {
+  width: 65%;
+}
+
+.info-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #D97D64;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  color: #D97D64;
+  font-size: 25px;
+  margin-left: 10%;
+  /* font-weight: bold; */
+}
+
+.info-value {
+  color: #00aaff;
+  font-size: 25px;
+  /* font-weight: bold; */
+}
+
+/* Inputs and Select Fields */
+.info-input,
+.info-select {
+  background: transparent;
+  color:#0056b3;
+  border: none;
+  font-size: 30px;
+  
+  text-align: end;
+
+  margin-right: 10%;
+  outline: none;
+  
+}
+
+
+.info-select {
+  cursor: pointer;
+}
+/* ده الجزء الخاص بShowAllUsers */
+.user-list-container {
+  width: 400px;
+  margin: 20px auto;
+  padding: 20px;
+  background:#111 ;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+  
+
+.user-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.user-item {
+  padding: 12px 20px;
+  font-size: 25px;
+  font-weight: bold;
+  color: #D97D64;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.user-item:hover {
+  background-color: #f49b82;
+  color: white;
+}
+
+.user-item:not(:last-child) {
+  border-bottom: 1px solid #D97D64; /* خط فاصل بين العناصر */
+}
+
+
+.no-users {  /* show all user */
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: #b30000; 
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #ffe6e6; 
+  border: 2px solid #b30000;
+  border-radius: 5px;
+  display: inline-block;
+}
+.unauthorized-container {
+  text-align: center;
+  background-color: #111;
+  color: #b30000;
+  padding: 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  margin: 50px auto;
+}
+
+.unauthorized-container h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.unauthorized-container p {
+  font-size: 18px;
+}

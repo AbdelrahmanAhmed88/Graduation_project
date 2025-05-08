@@ -41,3 +41,15 @@ exports.createUser = async (req, res) => {
     await newUser.save();
     res.status(201).json({ status: "Success", data: { user: newUser } });
 };
+
+exports.deleteUser = async (req, res) => {
+    try {
+        const deletedUser = await USER.findOneAndDelete({ user_id: req.params.userID });
+        if (!deletedUser) {
+            return res.status(404).json({ status: "FAIL", message: "User ID not found" });
+        }
+        return res.json({ status: "Success", message: "User deleted successfully", user: deletedUser });
+    } catch (err) {
+        return res.status(500).json({ error: "Internal server error" });
+    }
+};
