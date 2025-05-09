@@ -1,16 +1,22 @@
 const VEHICLE = require('../models/vehicles.models');
+const bycrypt = require('bcrypt');
+const saltRounds = 10;
 
 exports.registerVehicle = async (req, res) => {
 
-    const { vehicle_id, car_model } = req.body;
-    if (!vehicle_id || !car_model) {
+    const { vehicle_id, car_model ,admin} = req.body;
+    if (!vehicle_id || !car_model ||!admin) {
         return res.status(400).json({ status: 'FAIL', message: 'Missing required fields' });
     }
+    const hashedPassword = await bycrypt.hash(admin.password, saltRounds);
 
     const newVehicle = new VEHICLE({
         vehicle_id,
         car_model,
-        ...req.body
+        admin: {
+            ...admin,
+            password: hashedPassword
+        }
     });
 
     try {
@@ -141,6 +147,27 @@ exports.getVehicleUsers = async (req, res) => {
     
       } catch (error) {
         console.error("Error fetching users:", error);
-        return res.status(500).json({ success: false, message: "Internal server error" });
-      }  
+        return res.status(500).json({ success: false, message: "Internal server error"});
+  }  
 }
+exports.loginAdmin = async (req, res) => {
+    const { vehicle_id, Email, Password } = req.body;
+    if (!Email || !Password ||!vehicle_id) {
+      return res.status(404).json({ msg: "Please enter all fields" });
+    }
+    try {
+      const vehicle = await VEHICLE.findOne({ 'vehicle_id' : vehicle_id });
+      if (!vehicle) {
+        return res.status(404).json({ msg: "Vehicle does not exist" });
+      }
+      const isMatch = await bycrypt.compare(Password, vehicle.admin.password);
+      if (!isMatch) {
+        return res.status(404).json({ success: false, credentials: "unmatched" });
+      }
+      return res.status(200).json({ success: true, credentials: "matched" });
+    }
+    catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+    }
+

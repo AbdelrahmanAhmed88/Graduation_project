@@ -78,37 +78,37 @@ wss.on('connection', (ws) => {
 
 // this is just for testing signin and signup purpose no need to add routes
 
-const SignUser = require('./models/Sign_users.models');
+// const SignUser = require('./models/Sign_users.models');
 
-app.post('/api/signin', async (req, res) => {
-  const { Email, Password } = req.body;
-  if (!Email || !Password) {
-    return res.status(404).json({ msg: "Please enter all fields" });
-  }
-  try {
-    const Suser = await SignUser.findOne({ Email: Email , Password: Password  });
-    if (!Suser) {
-      return res.status(404).json({ msg: "User does not exist" });
-    }
-    console.log(Suser);
-    res.status(201).json({ Suser });
-  }
-  catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// app.post('/api/signin', async (req, res) => {
+//   const { Email, Password } = req.body;
+//   if (!Email || !Password) {
+//     return res.status(404).json({ msg: "Please enter all fields" });
+//   }
+//   try {
+//     const Suser = await SignUser.findOne({ Email: Email , Password: Password  });
+//     if (!Suser) {
+//       return res.status(404).json({ msg: "User does not exist" });
+//     }
+//     console.log(Suser);
+//     res.status(201).json({ Suser });
+//   }
+//   catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
-app.post('/api/signup', async (req, res) => {
-  // console.log("req came : ",req.body);
-  const { Email } = req.body;
-  console.log("email : ",Email);
-  const existingUser = await SignUser.findOne({ Email });
-  if (existingUser) {
-    return res.status(404).json({ msg: "User already exists" });
-  }
-  const newSuser = SignUser(req.body);
-  await newSuser.save();
-  console.log("user added successfully ",newSuser);
-  res.status(201).json({ status: "Success", data: { user: newSuser } });
-});
+// app.post('/api/signup', async (req, res) => {
+//   // console.log("req came : ",req.body);
+//   const { Email } = req.body;
+//   console.log("email : ",Email);
+//   const existingUser = await SignUser.findOne({ Email });
+//   if (existingUser) {
+//     return res.status(404).json({ msg: "User already exists" });
+//   }
+//   const newSuser = SignUser(req.body);
+//   await newSuser.save();
+//   console.log("user added successfully ",newSuser);
+//   res.status(201).json({ status: "Success", data: { user: newSuser } });
+// });
 

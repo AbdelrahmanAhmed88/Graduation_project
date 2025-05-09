@@ -1,5 +1,4 @@
 const express = require('express');
-const bycrypt = require('bcrypt');
 const router = express.Router();
 const {
     registerVehicle,
@@ -7,7 +6,8 @@ const {
     getRequestedVehicleID,
     addUserToVehicle,
     getVehicleUsers,
-    deleteUserFromVehicle
+    deleteUserFromVehicle,
+    loginAdmin
 } = require('../controllers/vehicleController');
 
 router.post('/', registerVehicle);
@@ -16,5 +16,6 @@ router.get('/:vehicle_id', getVehicle);
 router.post('/users', addUserToVehicle);
 router.delete('/:vehicleId/users/:userId', deleteUserFromVehicle);
 router.get('/:vehicle_id/usersID', getVehicleUsers);
+router.post('/login', loginAdmin);
 
 module.exports = router;
