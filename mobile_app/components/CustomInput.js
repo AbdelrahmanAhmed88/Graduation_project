@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
+import colors from '../constants/colors';
 
 const CustomInput = ({ label, value, onChangeText, error, secureTextEntry }) => (
   <View style={styles.inputContainer}>
@@ -21,16 +22,16 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   label: {
-    color: '#fff',
+    color: colors.primary,
     marginBottom: 10,
   },
   input: {
-    backgroundColor: '#2d3748',
+    backgroundColor: colors.background_secondary,
     borderRadius: 12,
-    padding: 10,
-    color: '#fff',
+    padding:15,
+    color: colors.primary,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: colors.primary,
   },
   errorBorder: {
     borderColor: 'red',

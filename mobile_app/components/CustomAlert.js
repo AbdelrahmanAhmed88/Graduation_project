@@ -10,11 +10,13 @@ const CustomAlert = ({ visible, message, onClose, type , navigationTarget}) => {
   const navigation = useNavigation();
 
   const handleClose = () => {
-    onClose?.(); // optional if passed
+    onClose?.();
     if (navigationTarget) {
-      navigation.navigate(navigationTarget); // navigate when button is clicked
+      const { screen, params } = navigationTarget;
+      navigation.navigate(screen, params || undefined); // handles if params is undefined
     }
   };
+  
 
 
   return (

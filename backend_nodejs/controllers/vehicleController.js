@@ -151,16 +151,17 @@ exports.getVehicleUsers = async (req, res) => {
   }  
 }
 exports.loginAdmin = async (req, res) => {
-    const { vehicle_id, Email, Password } = req.body;
-    if (!Email || !Password ||!vehicle_id) {
+    console.log(req.body);
+    const { vehicle_id, email, password } = req.body;
+    if (!email || !password ||!vehicle_id) {
       return res.status(404).json({ msg: "Please enter all fields" });
     }
     try {
-      const vehicle = await VEHICLE.findOne({ 'vehicle_id' : vehicle_id });
+      const vehicle = await VEHICLE.findOne({ 'vehicle_id' : vehicle_id , 'admin.email': email });
       if (!vehicle) {
         return res.status(404).json({ msg: "Vehicle does not exist" });
       }
-      const isMatch = await bycrypt.compare(Password, vehicle.admin.password);
+      const isMatch = await bycrypt.compare(password, vehicle.admin.password);
       if (!isMatch) {
         return res.status(404).json({ success: false, credentials: "unmatched" });
       }
@@ -169,5 +170,5 @@ exports.loginAdmin = async (req, res) => {
     catch (err) {
       res.status(500).json({ error: err.message });
     }
-    }
+}
 

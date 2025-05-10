@@ -10,7 +10,6 @@ import * as Notifications from 'expo-notifications';
 import ip from '../connections/ip'
 
 //dimentions and orientation
-import * as ScreenOrientation from 'expo-screen-orientation';
 import axios from 'axios';
 const { height, width } = Dimensions.get('window');
 
@@ -67,12 +66,15 @@ export default function VehicleDrivers({ navigation }) {
             data={users}
             keyExtractor={(item) => item._id?.$oid || item.user_id}
             renderItem={({ item }) => (
-                <View style={styles.userItem}>
-                <View style={styles.userInfo}>
+                <TouchableOpacity style={styles.userItem} onPress={() => navigation.navigate('userProfile',{userId: item.user_id})}>
+                <View style={styles.userInfo} >
                     <Text style={styles.userName}>{item.name}</Text>
                 </View>
                 <View style={styles.userActions}>
-                    <TouchableOpacity style={styles.updateButton}>
+                    <TouchableOpacity 
+                        style={styles.updateButton}
+                        onPress={() => navigation.navigate('SignIn',{vin: vin, userId: item.user_id, userName: item.name})}    
+                    >
                     <FontAwesome6 name="edit" size={24} color={colors.secondary} />
                     </TouchableOpacity>
                     <TouchableOpacity 
@@ -82,7 +84,7 @@ export default function VehicleDrivers({ navigation }) {
                     <FontAwesome6 name="trash" size={24} color={colors.secondary} />
                     </TouchableOpacity>
                 </View>
-                </View>
+                </TouchableOpacity>
             )}
             contentContainerStyle={styles.usersContainer}
             />

@@ -2,64 +2,104 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Dimensions, Image, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState, useEffect } from 'react';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import ip from '../connections/ip';
+import colors from '../constants/colors';
 
 const { height, width } = Dimensions.get('window');
 
 export default function App() {
-
+  const route = useRoute();
+  const { vin , userId} = route.params || {}; 
+  const [name, setName] = useState('');
+  const [drivingDuration, setDrivingDuration] = useState('');
+  const [speedLimit, setSpeedLimit] = useState('');
+  const [maxSpeed, setMaxSpeed] = useState('');
+  const [aggressiveDriving, setAggressiveDriving] = useState('');
+  const [drowsiness, setDrowsiness] = useState('');
+  const [focus, setFocus] = useState('');
+  const [image, setImage] = useState('');
   
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`http://${ip}:5000/api/users/${userId}`);
+        const userData = response.data.user;
+        if (userData) {
+          setName(userData.name);
+          setSpeedLimit(userData.speed_limit ? "Enabled" : "Disabled");
+          setMaxSpeed(`${userData.max_speed} KM/H`);
+          setAggressiveDriving(userData.aggressive_mode ? "Enabled" : "Disabled");
+          setDrowsiness(userData.drowsiness_mode ? "Enabled" : "Disabled");
+          setFocus(userData.focus_mode ? "Enabled" : "Disabled");
+          setDrivingDuration("1 Hour"); // or handle dynamically if needed
+
+          // fetch user image
+          const imageUrl = `http://${ip}:5000/users/images/${userData.image}`;
+          setImage(imageUrl);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+  
+    if (userId) {
+      fetchUserData();
+    }
+  }, [userId]);
 
   return (
-    <LinearGradient colors={["#006BFF","#1E1E1E"]} style={styles.container}>
     <View style={styles.container}>
         <ScrollView style={styles.scrollContainer}>
 
         <View style={styles.imageContainer}>
-          <Image
-            source={require("../assets/profile.png")} 
-            style={styles.profileImage}
-            resizeMode="cover"
-          />
+        {image ? (
+            <Image
+              source={{ uri: image }}
+              style={styles.profileImage}
+              resizeMode="cover"
+            />
+          ) : (
+            <Image
+              source={require("../assets/profile.png")} // Default image in case of failure
+              style={styles.profileImage}
+              resizeMode="cover"
+            />
+          )}
         </View>
 
-        <Text style={styles.name}>Abdelrahman</Text>
+        <Text style={styles.name}>{name}</Text>
 
-        <View style={styles.rowContainer}>
           <View style={styles.infoContainer}>
             <Text style={styles.infoText}>Driving Duration</Text>
             <Text style={styles.infoTextValue}>1 Hour</Text>
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.infoText}>Speed Limit</Text>
-            <Text style={styles.infoTextValue}>Enabled</Text>
+            <Text style={styles.infoTextValue}>{speedLimit}</Text>
           </View>
-        </View>
 
-        <View style={styles.rowContainer}>
+
           <View style={styles.infoContainer}>
             <Text style={styles.infoText}>Max Speed</Text>
-            <Text style={styles.infoTextValue}>120 KM/H</Text>
+            <Text style={styles.infoTextValue}>{maxSpeed}</Text>
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.infoText}>Aggressive Driving</Text>
-            <Text style={styles.infoTextValue}>Disabled</Text>
+            <Text style={styles.infoTextValue}>{aggressiveDriving}</Text>
           </View>
-        </View>
 
-        <View style={styles.rowContainer}>
           <View style={styles.infoContainer}>
             <Text style={styles.infoText}>Drowsiness</Text>
-            <Text style={styles.infoTextValue}>Disabled</Text>
+            <Text style={styles.infoTextValue}>{drowsiness}</Text>
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.infoText}>Focus</Text>
-            <Text style={styles.infoTextValue}>Enabled</Text>
+            <Text style={styles.infoTextValue}>{focus}</Text>
           </View>
-        </View>
         </ScrollView>
     </View>
-     
-    </LinearGradient>
   );
 }
 
@@ -68,6 +108,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: colors.background_primary,
   },
   backgroundImage: {
     width: width,
@@ -86,14 +127,14 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     justifyContent: 'flex-start',
-    backgroundColor:'blue',
+    backgroundColor: colors.background_primary,
   },
   profileImage: {
     height: height * 0.7,
     width:width,
   },
   scrollContainer: {
-    width: width, 
+    width: width,
   },
   name: {
     fontSize: 35,
@@ -102,21 +143,24 @@ const styles = StyleSheet.create({
     marginTop: height * 0.47,
     alignSelf: 'center',
   },
-  rowContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 10,
-    marginTop: 10,
-  },
+  // rowContainer: {
+  //   flexDirection: 'row',
+  //   justifyContent: 'space-between',
+  //   paddingHorizontal: 10,
+  //   marginTop: 10,
+  // },
   infoContainer: {
-    backgroundColor: '#1E1E1E',
+    backgroundColor: colors.background_primary,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.primary,
     padding: 20,
-    borderRadius: 10,
-    width: '48%',
-    height: 130,
+    width: width*0.94,
+    height: height * 0.1,
+    marginVertical: 10,
+    marginHorizontal: 10,
     justifyContent: 'space-between',
     alignItems: 'center',
-    flexDirection: 'column',
+    flexDirection: 'row',
   },
   infoText: {
     color: 'white',

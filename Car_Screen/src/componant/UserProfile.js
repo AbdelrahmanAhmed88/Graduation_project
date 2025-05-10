@@ -14,7 +14,7 @@ export default function UserProfile() {
   const [formData, setFormData] = useState({
     name: "",
     nfc_id: "",
-    speedLimit: false, 
+    speed_limit: false, 
     max_speed: "",
     aggressive_mode: false, 
     drowsiness_mode: false, 
@@ -97,7 +97,7 @@ export default function UserProfile() {
             setFormData({
               name: "",
               nfc_id: "",
-              speedLimit: false,
+              speed_limit: false,
               max_speed: "",
               aggressive_mode: false,
               drowsiness_mode: false,
@@ -162,7 +162,7 @@ export default function UserProfile() {
 
             <div className="info-row">
               <span className="info-label">Speed Limit</span>
-              <select name="speedLimit" value={formData.speedLimit} onChange={handleInputChange} className="info-select">
+              <select name="speed_limit" value={formData.speed_limit} onChange={handleInputChange} className="info-select">
                 <option value={true}>Enabled</option>
                 <option value={false}>Disabled</option>
               </select>

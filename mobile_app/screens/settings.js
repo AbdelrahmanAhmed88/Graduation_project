@@ -42,6 +42,20 @@ export default function Settings({ navigation }) {
         </View>
       </ScrollView>
 
+            {/* Bottom Navigation */}
+      <View style={[styles.bottomNav,{width:width}]}>
+          <TouchableOpacity onPress={() => navigation.navigate('Garage')}>
+            <FontAwesome6 name="square-parking" size={30} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+            <FontAwesome6 name="car" size={30} color="white" />
+            onPress={() => navigation.navigate('Home')}
+          </TouchableOpacity>
+          <TouchableOpacity >
+          <Feather name="settings" size={30} color="white" />
+        </TouchableOpacity>
+      </View>
+
       </View>
     );
   };
@@ -60,6 +74,26 @@ export default function Settings({ navigation }) {
       paddingVertical: 20,
       backgroundColor: colors.background_secondary,
     },
+      buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    backgroundColor: colors.background_secondary,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  bottomNav: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 0,
+    justifyContent: 'space-around',
+    backgroundColor: colors.background_secondary,
+    padding: 10,
+  },
+  navIcon: {
+    width: 30,
+    height: 30,
+  },
     title: {
       fontSize: 25,
       marginLeft: 15,

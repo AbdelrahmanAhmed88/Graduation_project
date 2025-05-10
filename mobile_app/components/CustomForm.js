@@ -52,7 +52,7 @@ const CustomForm = ({ fields, onSubmit, buttonText }) => {
 
 const styles = StyleSheet.create({
   form: {
-    width: '80%',
+    width: '90%',
     marginBottom: 10,
   },
   button: {

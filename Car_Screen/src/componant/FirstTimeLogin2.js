@@ -42,6 +42,7 @@ function FirstTimeLogin2() {
           name,
           phone_number: phone,
           email,
+          password
         }
       };
 

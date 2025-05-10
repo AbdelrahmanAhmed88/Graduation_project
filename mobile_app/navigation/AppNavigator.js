@@ -11,6 +11,7 @@ import Signin from '../screens/SignIn';
 import Signup from '../screens/SignUp';
 import settingsScreen from '../screens/settings';
 import vehicleDrivers from '../screens/vehicleDrivers';
+import editUserDataScreen from '../screens/editUserDataScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +32,7 @@ export default function App() {
         <Stack.Screen name="SignUp" component={Signup} options={{lazy:true}} />
         <Stack.Screen name="settings" component={settingsScreen} options={{lazy:true}} />
         <Stack.Screen name="vehicleDrivers" component={vehicleDrivers} options={{lazy:true}} />
+        <Stack.Screen name="editUserData" component={editUserDataScreen} options={{lazy:true}} />
       </Stack.Navigator>
     </NavigationContainer>
   );
