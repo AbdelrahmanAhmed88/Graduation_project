@@ -103,10 +103,6 @@ export default function AddNewCarScreen() {
   
 
   const handleSubmit = async () => {
-    if (!isValidVin) {
-      Alert.alert("Invalid VIN", "Please enter a valid 17-character VIN.");
-      return;
-    }
   
     try {
 
@@ -190,7 +186,7 @@ export default function AddNewCarScreen() {
         Alert.alert("Car Not Found", "No car data found for this VIN.");
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       showAlert('Vehicle Not Found','error');
       //Alert.alert("Car Not Found", "No car data found for this VIN.");
     }

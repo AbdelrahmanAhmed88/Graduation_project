@@ -6,10 +6,13 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import ip from '../connections/ip';
 import colors from '../constants/colors';
+import { useAlert } from '../context/AlertContext';
 
 const { height, width } = Dimensions.get('window');
 
-export default function App() {
+export default function UserProfile() {
+  const { showAlert, hideAlert } = useAlert();
+
   const route = useRoute();
   const { vin , userId} = route.params || {}; 
   const [name, setName] = useState('');
@@ -24,6 +27,7 @@ export default function App() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        showAlert('Loading...', 'loading');
         const response = await axios.get(`http://${ip}:5000/api/users/${userId}`);
         const userData = response.data.user;
         if (userData) {
@@ -38,6 +42,7 @@ export default function App() {
           // fetch user image
           const imageUrl = `http://${ip}:5000/users/images/${userData.image}`;
           setImage(imageUrl);
+          hideAlert();
         }
       } catch (error) {
         console.error("Error fetching user data:", error);

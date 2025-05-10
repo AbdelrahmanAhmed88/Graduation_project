@@ -6,13 +6,9 @@ import colors  from '../constants/colors';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Feather from '@expo/vector-icons/Feather';
 
-import * as Notifications from 'expo-notifications';
 
-
-import ip from '../connections/ip'
 
 //dimentions and orientation
-import * as ScreenOrientation from 'expo-screen-orientation';
 const { height, width } = Dimensions.get('window');
 
 export default function Settings({ navigation }) {
@@ -34,12 +30,12 @@ export default function Settings({ navigation }) {
             <Text style={styles.settingTitle}>Manage Drivers</Text>
           </TouchableOpacity>
         </View>
-        <View>
+        {/* <View>
           <TouchableOpacity onPress={() => navigation.navigate('')} style={styles.settingItem}>
             <Feather name="users" size={24} color="black" />
             <Text style={styles.settingTitle}>Manage Users</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </ScrollView>
 
             {/* Bottom Navigation */}
@@ -49,7 +45,6 @@ export default function Settings({ navigation }) {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Home')}>
             <FontAwesome6 name="car" size={30} color="white" />
-            onPress={() => navigation.navigate('Home')}
           </TouchableOpacity>
           <TouchableOpacity >
           <Feather name="settings" size={30} color="white" />

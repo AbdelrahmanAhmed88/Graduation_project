@@ -12,28 +12,31 @@ import Signup from '../screens/SignUp';
 import settingsScreen from '../screens/settings';
 import vehicleDrivers from '../screens/vehicleDrivers';
 import editUserDataScreen from '../screens/editUserDataScreen';
+import { AlertProvider } from '../context/AlertContext';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='Garage' 
-        screenOptions={{
-            headerShown: false,
-        }}
-      >
-        <Stack.Screen name="addNewCar" component={addNewCarScreen} options={{lazy:true}}/>
-        <Stack.Screen name="Garage" component={myCarsScreen} options={{lazy:true}}/>
-        <Stack.Screen name="Home" component={HomeScreen} options={{lazy:true}} />
-        <Stack.Screen name="Control" component={ControlScreen} options={{lazy:true}} />
-        <Stack.Screen name="userProfile" component={userProfileControl} options={{lazy:true}} />
-        <Stack.Screen name="SignIn" component={Signin} options={{lazy:true}} />
-        <Stack.Screen name="SignUp" component={Signup} options={{lazy:true}} />
-        <Stack.Screen name="settings" component={settingsScreen} options={{lazy:true}} />
-        <Stack.Screen name="vehicleDrivers" component={vehicleDrivers} options={{lazy:true}} />
-        <Stack.Screen name="editUserData" component={editUserDataScreen} options={{lazy:true}} />
-      </Stack.Navigator>
+      <AlertProvider>
+        <Stack.Navigator initialRouteName='Garage' 
+          screenOptions={{
+              headerShown: false,
+          }}
+        >
+          <Stack.Screen name="addNewCar" component={addNewCarScreen} options={{lazy:true}}/>
+          <Stack.Screen name="Garage" component={myCarsScreen} options={{lazy:true}}/>
+          <Stack.Screen name="Home" component={HomeScreen} options={{lazy:true}} />
+          <Stack.Screen name="Control" component={ControlScreen} options={{lazy:true}} />
+          <Stack.Screen name="userProfile" component={userProfileControl} options={{lazy:true}} />
+          <Stack.Screen name="SignIn" component={Signin} options={{lazy:true}} />
+          <Stack.Screen name="SignUp" component={Signup} options={{lazy:true}} />
+          <Stack.Screen name="settings" component={settingsScreen} options={{lazy:true}} />
+          <Stack.Screen name="vehicleDrivers" component={vehicleDrivers} options={{lazy:true}} />
+          <Stack.Screen name="editUserData" component={editUserDataScreen} options={{lazy:true}} />
+        </Stack.Navigator>
+      </AlertProvider>
     </NavigationContainer>
   );
 }

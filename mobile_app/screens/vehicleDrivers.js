@@ -6,6 +6,9 @@ import colors  from '../constants/colors';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Feather from '@expo/vector-icons/Feather';
 
+import { useAlert } from '../context/AlertContext';
+
+
 import * as Notifications from 'expo-notifications';
 import ip from '../connections/ip'
 
@@ -14,6 +17,8 @@ import axios from 'axios';
 const { height, width } = Dimensions.get('window');
 
 export default function VehicleDrivers({ navigation }) {
+    const { showAlert, hideAlert } = useAlert();
+
     const route = useRoute();
     const { vin } = route.params || {}; 
 
@@ -22,9 +27,11 @@ export default function VehicleDrivers({ navigation }) {
     useEffect(() => {
         const fetchUsers = async () => {
           try {
+            showAlert('Loading...', 'loading');
             const response = await axios.get(`http://${ip}:5000/api/vehicles/${vin}`);
             const data = await response.data;
             setUsers(data.vehicle.users || []);
+            hideAlert();
           } catch (error) {
             if(error.response.status === 404){
                 console.log('No users found');

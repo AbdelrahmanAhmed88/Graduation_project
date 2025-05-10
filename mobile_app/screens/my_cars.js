@@ -144,7 +144,7 @@ export default function MyCarsScreen() {
               nickname: car.nickname,
               vin: car.vin,
               image: car.carImageUri
-            })}>
+            })}>  
             <Image source={car.carImageUri} style={styles.carCardImage} />
 
             <View style={styles.bottomInfo}>
@@ -175,6 +175,9 @@ export default function MyCarsScreen() {
           <Text style={styles.submitText}>Add Car</Text>
         </TouchableOpacity>
       </ScrollView>
+
+
+
     </View>
   );
 }
