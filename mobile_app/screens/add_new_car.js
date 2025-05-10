@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { useState, useEffect } from 'react';
 
+import { useAlert } from '../context/AlertContext';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 import axios from 'axios';
@@ -22,6 +23,9 @@ import CustomAlert from '../components/CustomAlert'; // Import the custom alert 
 const { height, width } = Dimensions.get('window');
 
 export default function AddNewCarScreen() {
+
+  const { showAlert, hideAlert } = useAlert();
+
   const [vin, setVin] = useState('');
   const [model, setModel] = useState('');
   const [nickname, setNickname] = useState('');
@@ -31,18 +35,6 @@ export default function AddNewCarScreen() {
   const [alertMessage, setAlertMessage] = useState('');
   const [alertType, setAlertType] = useState(''); // Can be 'message' or 'loading'
   const [navigationTarget, setNavigationTarget] = useState(null);
-
-  const showAlert = (message, type = 'message', target = null) => {
-    setAlertMessage(message);
-    setAlertType(type); // Set the type to 'loading' for the loading alert
-    setNavigationTarget(target);
-    setAlertVisible(true);
-  };
-
-  const hideAlert = () => {
-    setAlertVisible(false);
-    
-  };
 
 
   const isValidVin = vin.length === 17;
@@ -202,9 +194,6 @@ export default function AddNewCarScreen() {
   return (
     <LinearGradient colors={["#006BFF","#034196","#090A0B","#090A0B","#090A0B","#090A0B","#090A0B","#090A0B","#090A0B","#090A0B","#090A0B","#090A0B"]} style={styles.container}>
       
-      {/* Custom Alert */}
-      <CustomAlert visible={alertVisible} message={alertMessage} onClose={hideAlert} type={alertType} navigationTarget={navigationTarget} />
-
       <View style={styles.navigationBar}>
         <Text style={styles.navigationBarText}>Add Your Car</Text>
       </View>

@@ -9,6 +9,7 @@ import Feather from '@expo/vector-icons/Feather';
 
 
 //dimentions and orientation
+
 const { height, width } = Dimensions.get('window');
 
 export default function Settings({ navigation }) {

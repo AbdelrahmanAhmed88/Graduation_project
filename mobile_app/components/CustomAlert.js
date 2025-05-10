@@ -12,10 +12,15 @@ const CustomAlert = ({ visible, message, onClose, type , navigationTarget}) => {
   const handleClose = () => {
     onClose?.();
     if (navigationTarget) {
-      const { screen, params } = navigationTarget;
-      navigation.navigate(screen, params || undefined); // handles if params is undefined
+      if (typeof navigationTarget === 'string') {
+        navigation.navigate(navigationTarget);
+      } else if (typeof navigationTarget === 'object') {
+        const { screen, params } = navigationTarget;
+        navigation.navigate(screen, params || undefined);
+      }
     }
   };
+  
   
 
 

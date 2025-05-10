@@ -40,12 +40,15 @@ export default function UserProfile() {
           setDrivingDuration("1 Hour"); // or handle dynamically if needed
 
           // fetch user image
-          const imageUrl = `http://${ip}:5000/users/images/${userData.image}`;
+          const imageUrl = await`http://${ip}:5000/users/images/${userData.image}`;
           setImage(imageUrl);
           hideAlert();
         }
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        // console.error("Error fetching user data:", error);
+        if (error.response.status === 404) {
+          showAlert('User not found', 'error');
+        }
       }
     };
   
