@@ -102,7 +102,7 @@ export default function VehicleDrivers({ navigation }) {
         <TouchableOpacity onPress={() => navigation.navigate('Garage')}>
           <FontAwesome6 name="square-parking" size={30} color="white" />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
           <FontAwesome6 name="car" size={30} color="white" />
         </TouchableOpacity>
         <TouchableOpacity 

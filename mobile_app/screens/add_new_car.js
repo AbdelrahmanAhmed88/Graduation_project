@@ -244,7 +244,8 @@ export default function AddNewCarScreen() {
             <Text style={styles.submitText}>Cancel</Text>
           </TouchableOpacity>
 
-          <Text style={styles.helpText} onPress={() => {navigation.navigate('SignIn')}}>Need Help?</Text>
+          {/* this part was for backdoor testing */}
+          {/* <Text style={styles.helpText} onPress={() => {navigation.navigate('SignIn')}}>Need Help?</Text> */} 
         </View>
           
       </View>
@@ -280,7 +281,7 @@ const styles = StyleSheet.create({
   },
   navigationBarText: {
     fontSize: 25,
-    color:'white',
+    color:  colors.white,
     fontWeight: 'bold',
     alignSelf: 'center',
   },
@@ -332,11 +333,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom:15,
     width: '100%',
+    marginBottom: 20,
   },
   submitButton: {
     padding: 15,
     borderRadius: 8,
-    marginTop: 30,
+    marginBottom: 20,
     alignItems: 'center',
   },
   submitText: {

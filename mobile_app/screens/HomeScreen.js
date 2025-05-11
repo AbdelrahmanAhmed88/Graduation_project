@@ -275,9 +275,10 @@ const portraitStyles = (screenWidth,screenHeight) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
-    backgroundColor: colors.background_secondary,
+    // backgroundColor: colors.background_secondary,
     borderRadius: 10,
     marginBottom: 20,
+    backgroundColor: colors.warning,
   },
   container_two: {
 
@@ -396,6 +397,7 @@ const landscapeStyles = (screenWidth,screenHeight) => StyleSheet.create({
   row_one: {
     flexDirection: 'row',
     justifyContent:'space-between',
+    backgroundColor: colors.warning,
     width: '100%', 
     
   },
