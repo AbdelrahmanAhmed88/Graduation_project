@@ -30,33 +30,36 @@ export default function App() {
   const [editName, setEditName] = useState('');
   const [editMaxSpeed, setEditMaxSpeed] = useState('');
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get(`http://${ip}:5000/api/users/${userId}`);
-        const userData = response.data.user;
-        if (userData) {
-          setName(userData.name);
-          setSpeedLimit(userData.speed_limit);
-          setMaxSpeed(`${userData.max_speed}`);
-          setAggressiveDriving(userData.aggressive_mode);
-          setDrowsiness(userData.drowsiness_mode);
-          setFocus(userData.focus_mode);
-          setDrivingDuration("1 Hour"); // or handle dynamically if needed
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get(`http://${ip}:5000/api/users/${userId}`);
+      // console.log(response.data);
+      const userData = response.data.user;
+      if (userData) {
+        setName(userData.name);
+        setSpeedLimit(userData.speed_limit);
+        setMaxSpeed(`${userData.max_speed}`);
+        setAggressiveDriving(userData.aggressive_mode);
+        setDrowsiness(userData.drowsiness_mode);
+        setFocus(userData.focus_mode);
+        setDrivingDuration("1 Hour"); // or handle dynamically if needed
 
-          // Fetch user image
-          const imageUrl = `http://${ip}:5000/users/images/${userData.image}`;
-          setImage(imageUrl);
+        // Fetch user image
+        const imageUrl = `http://${ip}:5000/users/images/${userData.image}`;
+        setImage(imageUrl);
 
-          // Set initial editable fields
-          setEditName(userData.name);
-          setEditMaxSpeed(`${userData.max_speed}`);
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+        // Set initial editable fields
+        setEditName(userData.name);
+        setEditMaxSpeed(`${userData.max_speed}`);
       }
-    };
+    } catch (error) {
+      if(error.response.status === 404)
+        console.error("User not found");
+    }
+  };
 
+  useEffect(() => {
+    
     if (userId) {
       fetchUserData();
     }
@@ -65,7 +68,7 @@ export default function App() {
   const handleSaveChanges = async () => {
     try {
       const updatedData = {
-        name: editName,
+        name: editName.trim(),
         speed_limit: speedLimit,
         max_speed: parseInt(editMaxSpeed),
         aggressive_mode: aggressiveDriving,
@@ -74,7 +77,15 @@ export default function App() {
       };
 
       // Send updated data to backend
-      const response = await axios.put(`http://${ip}:5000/api/users/${userId}`, updatedData);
+      const response = await axios.patch(`http://${ip}:5000/api/users/${userId}`, updatedData);
+      if(editName !== name)
+      {
+        console.log("Updating vehicle name");
+        // Update vehicle name in vehicle 
+        console.log(vin);
+        const vehicleResponse = await axios.patch(`http://${ip}:5000/api/vehicles/${vin}/users/${userId}`, {name: editName.trim()});
+        console.log(vehicleResponse.data);
+      }
       if (response.status === 200) {
         alert("User data updated successfully!");
         fetchUserData(); // Refresh data

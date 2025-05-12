@@ -7,7 +7,8 @@ const {
     addUserToVehicle,
     getVehicleUsers,
     deleteUserFromVehicle,
-    loginAdmin
+    loginAdmin,
+    editUserName
 } = require('../controllers/vehicleController');
 
 router.post('/', registerVehicle);
@@ -17,5 +18,6 @@ router.post('/users', addUserToVehicle);
 router.delete('/:vehicleId/users/:userId', deleteUserFromVehicle);
 router.get('/:vehicle_id/usersID', getVehicleUsers);
 router.post('/login', loginAdmin);
+router.patch('/:vehicleId/users/:usersID', editUserName); 
 
 module.exports = router;

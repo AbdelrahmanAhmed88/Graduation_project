@@ -41,7 +41,7 @@ export default function SignInScreen() {
       const matched = response.data.credentials;
       // console.log(matched);
       if (matched === 'matched') {
-        showAlert('Signed in successfully!', 'success', { screen: 'editUserData', params: {userId} });
+        showAlert('Signed in successfully!', 'success', { screen: 'editUserData', params: {vin,userId} });
 
         // navigation.navigate('settings',{vin: vin});
         return;

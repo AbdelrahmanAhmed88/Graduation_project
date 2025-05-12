@@ -172,3 +172,24 @@ exports.loginAdmin = async (req, res) => {
     }
 }
 
+exports.editUserName = async (req, res) => {
+    try {
+        const { vehicleId, usersID } = req.params;
+        const { name } = req.body;
+
+        if (!name) {
+          return res.status(400).json({ success: false, message: "Missing required fields" });
+        }
+        const result = await VEHICLE.updateOne(
+          { vehicle_id: vehicleId, "users.user_id": usersID },
+          { $set: { "users.$.name": name } }
+        )
+        if (result.modifiedCount === 0) {
+          return res.status(404).json({ success: false, message: "User not found" });
+        }
+        res.status(200).json({ success: true, message: "User name updated successfully" });
+    }catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}
