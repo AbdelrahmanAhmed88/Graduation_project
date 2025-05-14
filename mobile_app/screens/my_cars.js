@@ -116,8 +116,8 @@ export default function MyCarsScreen() {
 
       <ScrollView style={styles.carCardsContainer}>
 
-
-      <TouchableOpacity
+      {/* this part is for testing without api */}
+      {/* <TouchableOpacity
         style={styles.carCard }
         onPress={() => navigation.navigate('Home', {
           model: 'Model A',
@@ -134,7 +134,7 @@ export default function MyCarsScreen() {
             </View>
           </View>
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
         {cars.map((car, index) => (
             <TouchableOpacity key={index} style={styles.carCard}   

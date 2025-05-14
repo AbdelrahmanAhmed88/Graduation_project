@@ -66,7 +66,7 @@ export default function HomeScreen({ navigation }) {
   
           await Notifications.scheduleNotificationAsync({
             content: {
-              title: '🚗 Car Update',
+              title: '🚗 Message from hardware',
               body: msg.message || 'New message from car',
             },
             trigger: null,
@@ -278,7 +278,7 @@ const portraitStyles = (screenWidth,screenHeight) => StyleSheet.create({
     // backgroundColor: colors.background_secondary,
     borderRadius: 10,
     marginBottom: 20,
-    backgroundColor: colors.warning,
+    backgroundColor: colors.background_secondary,
   },
   container_two: {
 

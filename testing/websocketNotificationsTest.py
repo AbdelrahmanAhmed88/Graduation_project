@@ -2,7 +2,7 @@ import asyncio
 import websockets
 import json
 
-VEHICLE_ID = "5YJ3E1EA7HF000314"
+VEHICLE_ID = "1HGCM82633A004352"
 SERVER_URL = "ws://192.168.100.202:5000"  # change this to match your server
 
 async def test_websocket():
@@ -18,7 +18,7 @@ async def test_websocket():
         await asyncio.sleep(1)  # Wait a moment
         await ws.send(json.dumps({
             "vehicle_id": VEHICLE_ID,
-            "message": "Hello driver from Python!"
+            "message": "bashmohndsa rania a7san mo3eda fel gam3a"
         }))
         print("Message sent!")
         return

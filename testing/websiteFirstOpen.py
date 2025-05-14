@@ -1,7 +1,7 @@
 import webbrowser
 
-VIN = "5YJ3E1EA7HF000314"
-CAR_MODEL = "Model A"
+VIN = "1HGCM82633A004352"
+CAR_MODEL = "Model B"
 
 def openFirstTimeScreen():
     print("Opening first time screen")

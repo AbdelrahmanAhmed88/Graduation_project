@@ -5,10 +5,13 @@ import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import ip from '../connections/ip';
 import colors from '../constants/colors';
+import { useAlert } from '../context/AlertContext';
 
 const { height, width } = Dimensions.get('window');
 
 export default function App() {
+  const { showAlert, hideAlert } = useAlert();
+
   const route = useRoute();
   const { vin, userId } = route.params || {}; 
   const [name, setName] = useState('');
@@ -87,7 +90,7 @@ export default function App() {
         console.log(vehicleResponse.data);
       }
       if (response.status === 200) {
-        alert("User data updated successfully!");
+        showAlert('data updated successfully!','success',{ screen: 'vehicleDrivers', params: {vin} });
         fetchUserData(); // Refresh data
       }
     } catch (error) {
