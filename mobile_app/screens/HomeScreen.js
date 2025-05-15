@@ -7,6 +7,7 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import Feather from '@expo/vector-icons/Feather';
 import axios from 'axios';
 import * as Notifications from 'expo-notifications';
+import { getSelectedVehicle } from '../storage/vehicleStorage';
 
 
 import ip from '../connections/ip'
@@ -31,8 +32,24 @@ Notifications.setNotificationHandler({
 
 export default function HomeScreen({ navigation }) {
 
-  const route = useRoute();
-  const { model = 'Model A', nickname,vin,image } = route.params || {}; 
+  const [vehicle, setVehicle] = useState(null);
+  
+  useEffect(() => {
+    const fetchVehicle = async () => {
+      const selectedVehicle = await getSelectedVehicle();
+      if (selectedVehicle) {
+        setVehicle(selectedVehicle);
+      }
+    };
+    fetchVehicle();
+  }, []);
+  
+
+  const model = vehicle?.model;
+  const vin = vehicle?.vin;
+  // const image = vehicle?.image;
+ 
+
 
   //oriantaion part
   const [orientation, setOrientation] = useState(1);  // 1 stands for portrait and landscape can take 2,3,4 depending on the screen
@@ -89,7 +106,7 @@ export default function HomeScreen({ navigation }) {
         console.log('Cleaning up WebSocket connection');
         ws.close();
       };
-    }, []);
+    }, [vin]);
   
 
   
@@ -397,7 +414,7 @@ const landscapeStyles = (screenWidth,screenHeight) => StyleSheet.create({
   row_one: {
     flexDirection: 'row',
     justifyContent:'space-between',
-    backgroundColor: colors.warning,
+    // backgroundColor: colors.warning,
     width: '100%', 
     
   },

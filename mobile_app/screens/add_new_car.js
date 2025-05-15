@@ -109,7 +109,7 @@ export default function AddNewCarScreen() {
             setTimeout(() => {
               // After the "loading" state is finished, show a message
               showAlert('Vehicle Added Successfully','success',"Garage");
-            }, 3000); // Simulating a 3-second delay
+            }, 2); // Simulating a 2-second delay
 
         
             const carModel = data.vehicle.car_model;
@@ -179,7 +179,10 @@ export default function AddNewCarScreen() {
       }
     } catch (error) {
       // console.log(error);
-      showAlert('Vehicle Not Found','error');
+      setTimeout(() => {
+        // After the "loading" state is finished, show a message
+        showAlert('Vehicle Not Found','error');
+      }, 3); // Simulating a 2-second delay
       //Alert.alert("Car Not Found", "No car data found for this VIN.");
     }
   };

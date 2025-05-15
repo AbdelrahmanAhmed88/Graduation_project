@@ -54,6 +54,7 @@ export default function VehicleDrivers({ navigation }) {
           if (response.data.success) {
             // Remove the user from the state
             setUsers((prevUsers) => prevUsers.filter(user => user.user_id !== userId));
+            showAlert('User removed successfully', 'success');
           } else {
           }
         } catch (error) {

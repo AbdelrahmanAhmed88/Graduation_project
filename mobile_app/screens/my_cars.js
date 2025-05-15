@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { saveVehicle } from '../storage/vehicleStorage';
 
 import colors from '../constants/colors';
 import CustomAlert from '../components/CustomAlert'; // Import the custom alert component
@@ -139,12 +140,17 @@ export default function MyCarsScreen() {
         {cars.map((car, index) => (
             <TouchableOpacity key={index} style={styles.carCard}   
             
-            onPress={() => navigation.navigate('Home', {
-              model: car.model,
-              nickname: car.nickname,
-              vin: car.vin,
-              image: car.carImageUri
-            })}>  
+            onPress={async () => {
+              const selectedCar = {
+                model: car.model,
+                nickname: car.nickname,
+                vin: car.vin,
+                imageUri: car.carImageUri?.uri ?? null // Safe fallback
+              };
+            
+              await saveVehicle(selectedCar);
+              navigation.navigate('Home');
+            }}>  
             <Image source={car.carImageUri} style={styles.carCardImage} />
 
             <View style={styles.bottomInfo}>
