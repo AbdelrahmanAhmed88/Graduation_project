@@ -24,7 +24,7 @@ def get_user_data(user_id):
     try:
         response = requests.get(url)
         if response.status_code == 200:
-            print(f"User data for user ID {user_id}: {response.json()}")
+            # print(f"User data for user ID {user_id}: {response.json()}")
             return response.json()  # You can return the data if needed
         else:
             print(f"User with ID {user_id} not found.")

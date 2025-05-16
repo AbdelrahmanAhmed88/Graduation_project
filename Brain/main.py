@@ -2,6 +2,7 @@ from serial_reader.reader import SerialReader
 from Models.faceCheckModelExec import face_check, store_encoding
 import subprocess
 from config import vehicle_config
+from config.driver_Data import session
 import webbrowser
 import time
 
@@ -20,7 +21,7 @@ from api_client.get_images import download_images_for_car
 
 reader = None  # Global reader
 
-driver_info = {}
+# driver_info = {}
 
 
 def my_callback(userID):
@@ -28,6 +29,8 @@ def my_callback(userID):
     driver_info = get_user_data(userID)
     if(driver_info):
         reader.send("U")
+        session.updateDriverData(driver_info["user"])
+        session.console_print()
         auth(userID,vehicle_config.VIN)
     else:
         reader.send("N")
@@ -52,8 +55,8 @@ def auth(user_id, vehicle_id):
     try:
         # Use webbrowser to open the URL directly in the default browser
         webbrowser.open(url)
-        time.sleep(1)
-        vehicle_client.send_message("Driver authentication successful. You can now start the car.")
+        time.sleep(10)
+        vehicle_client.send_message(f"Welcome {session.user_name}. You can now start the car.")
         
         # print("URL opened successfully")
     except Exception as e:
