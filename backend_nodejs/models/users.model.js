@@ -10,9 +10,12 @@ const userSchema = new mongoose.Schema({
     // Driving preferences & settings
     speed_limit: { type: Boolean, default: false }, 
     max_speed: { type: Number, required: true, min: 0, max: 300 }, 
-    aggressive_mode: { type: Boolean, default: false }, 
+    aggressive_mode: { type: Boolean, default: false },
     drowsiness_mode: { type: Boolean, default: false }, 
-    focus_mode: { type: Boolean, default: true } 
+    focus_mode: { type: Boolean, default: true },
+
+    //score
+    driving_score: { type: Number, default: 0 },
 });
 
 module.exports = mongoose.model('Users', userSchema);

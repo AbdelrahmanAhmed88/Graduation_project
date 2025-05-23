@@ -197,7 +197,7 @@ export default function HomeScreen({ navigation }) {
                 </TouchableOpacity>
                 <View style={styles.profile_status_buttons}>
                   
-                  <TouchableOpacity style={styles.profileContainer} onPress={() => navigation.navigate('userProfile')}>
+                  <TouchableOpacity style={styles.profileContainer} onPress={() => navigation.navigate('drivingScore')}>
                   <View style={styles.outerCircle}>
                     <Image source={require('../assets/profile.png')} style={styles.profileImage} />
                   </View>

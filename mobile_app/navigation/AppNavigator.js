@@ -12,6 +12,8 @@ import Signup from '../screens/SignUp';
 import settingsScreen from '../screens/settings';
 import vehicleDrivers from '../screens/vehicleDrivers';
 import editUserDataScreen from '../screens/editUserDataScreen';
+import drivingScoreScreen from '../screens/driving_score';
+
 import { AlertProvider } from '../context/AlertContext';
 
 const Stack = createNativeStackNavigator();
@@ -35,6 +37,7 @@ export default function App() {
           <Stack.Screen name="settings" component={settingsScreen} options={{lazy:true}} />
           <Stack.Screen name="vehicleDrivers" component={vehicleDrivers} options={{lazy:true}} />
           <Stack.Screen name="editUserData" component={editUserDataScreen} options={{lazy:true}} />
+          <Stack.Screen name="drivingScore" component={drivingScoreScreen} options={{lazy:true}} />
         </Stack.Navigator>
       </AlertProvider>
     </NavigationContainer>

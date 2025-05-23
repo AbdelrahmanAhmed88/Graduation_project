@@ -10,7 +10,7 @@ import { useAlert } from '../context/AlertContext';
 
 const { height, width } = Dimensions.get('window');
 
-export default function UserProfile() {
+export default function UserProfile({navigation}) {
   const { showAlert, hideAlert } = useAlert();
 
   const route = useRoute();
@@ -21,6 +21,7 @@ export default function UserProfile() {
   const [maxSpeed, setMaxSpeed] = useState('');
   const [aggressiveDriving, setAggressiveDriving] = useState('');
   const [drowsiness, setDrowsiness] = useState('');
+  const [drivingScore, setDrivingScore] = useState(0); 
   const [focus, setFocus] = useState('');
   const [image, setImage] = useState('');
   
@@ -38,6 +39,7 @@ export default function UserProfile() {
           setDrowsiness(userData.drowsiness_mode ? "Enabled" : "Disabled");
           setFocus(userData.focus_mode ? "Enabled" : "Disabled");
           setDrivingDuration("1 Hour"); // or handle dynamically if needed
+          setDrivingScore(userData.driving_score);
 
           // fetch user image
           const imageUrl = await`http://${ip}:5000/users/images/${userData.image}`;
@@ -55,7 +57,7 @@ export default function UserProfile() {
     if (userId) {
       fetchUserData();
     }
-  }, [userId]);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -97,6 +99,11 @@ export default function UserProfile() {
             <Text style={styles.infoText}>Aggressive Driving</Text>
             <Text style={styles.infoTextValue}>{aggressiveDriving}</Text>
           </View>
+
+          <TouchableOpacity style={styles.infoContainer} onPress={() => navigation.navigate('drivingScore',{userId:userId})}>
+            <Text style={styles.infoText}>Driving Score</Text>
+            <Text style={styles.infoTextValue}>{drivingScore}</Text>
+          </TouchableOpacity>
 
           <View style={styles.infoContainer}>
             <Text style={styles.infoText}>Drowsiness</Text>
