@@ -149,7 +149,10 @@ export default function MyCarsScreen() {
               };
             
               await saveVehicle(selectedCar);
-              navigation.navigate('Home');
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Home' }],
+              });
             }}>  
             <Image source={car.carImageUri} style={styles.carCardImage} />
 
