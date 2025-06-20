@@ -241,6 +241,6 @@ class Behaviour:
             self.stop_until_time = self.world_sensor.simulation_time + Stop_for
             # Optionally reset errors and log (uncomment if desired)
             # self.error_log.clear()
-            # self.errors = 0
+            self.errors = 0
         else:
             print(f"Errors = {self.errors}")
