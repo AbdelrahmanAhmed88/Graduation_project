@@ -385,4 +385,3 @@ class IMUSensor(object):
             self.sensor.stop()
             self.sensor.destroy()
             self.sensor = None
-            
