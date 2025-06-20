@@ -159,4 +159,3 @@ class World:
           """Return the configured spawn point for the player vehicle."""
           spawn_points = self.world.get_map().get_spawn_points()
           return spawn_points[SPAWN_POINT_INDEX % len(spawn_points)]
-
