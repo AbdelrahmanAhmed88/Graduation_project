@@ -1,5 +1,23 @@
+import json
+
+import os
+
+STATES_FILE = os.path.join(os.path.dirname(__file__), "vehicle_state.json")
+
+
+MAX_SPEED_DEFAULT = 220
+
+def get_max_speed():
+    try:
+        with open(STATES_FILE, 'r') as f:
+            data = json.load(f)
+            return data.get("speed_limit") or MAX_SPEED_DEFAULT
+    except Exception as e:
+        print(f"[CONFIG] Failed to load speed_limit from JSON: {e}")
+        return MAX_SPEED_DEFAULT
+
 # config.py
-TOWN = 'Town01'
+TOWN = 'Town04'
 
 # Environment flags
 # ['Buildings', 'Decals', 'Foliage', 'Ground', 'ParkedVehicles', 'Particles', 'Props', 'Walls']
@@ -32,7 +50,7 @@ CAMERA_POSITION = {"x": 1.5, "z": 1.4, "pitch": 0, "yaw": 0}
 BASE_SPEED = 10          # Initial base speed in km/h (not used directly in new control scheme)
 SPEED_INCREMENT = 0.1    # Throttle increment for Z/X keys (previously Inc_Speed)
 Inc_Speed = 10
-MAX_SPEED = 50           # Maximum speed in km/h (used for display purposes)
+MAX_SPEED =  get_max_speed()           # Maximum speed in km/h (used for display purposes)
 MAX_ERRORS_ALLOWED = 10
 
 # Monitoring

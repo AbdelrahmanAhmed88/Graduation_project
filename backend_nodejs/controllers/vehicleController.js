@@ -215,7 +215,6 @@ exports.setCurrentDriver = async (req, res) => {
     try {
         const { vehicle_id } = req.params;
         const { user_id, drowsiness_state, focus_state } = req.body;
-        console.log(vehicle_id);
         const vehicle = await VEHICLE.findOne({ vehicle_id: vehicle_id });
 
         if (!vehicle) {
@@ -224,6 +223,7 @@ exports.setCurrentDriver = async (req, res) => {
 
         vehicle.currentDriver = {
             user_id,
+            start_time,
             drowsiness_state,
             focus_state
         };

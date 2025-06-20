@@ -57,12 +57,12 @@ export default function UserProfile({ navigation }) {
 
         const imageUrl = `http://${ip}:5000/users/images/${userData.image}`;
         setImage(imageUrl);
-
-        if (userData.driving_score === 0) {
+       
+        if (userData.driving_score === 10) {
           setScoreLottie(require('../assets/border-success-secoundry.json'));
-        } else if (userData.driving_score < 3) {
+        } else if (userData.driving_score > 7) {
           setScoreLottie(require('../assets/border-success.json'));
-        } else if (userData.driving_score < 7) {
+        } else if (userData.driving_score < 3) {
           setScoreLottie(require('../assets/border-warning.json'));
         } else {
           setScoreLottie(require('../assets/border-danger.json'));

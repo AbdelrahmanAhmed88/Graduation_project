@@ -1,7 +1,8 @@
-from config import MAX_ERRORS_ALLOWED, Max_dis, Min_dis, Ref_Mass, Ref_Speed, Base_Threshold, Summary_Dir, MAX_SPEED, Stop_for
+from config import MAX_ERRORS_ALLOWED, Max_dis, Min_dis, Ref_Mass, Ref_Speed, Base_Threshold, Summary_Dir, MAX_SPEED, Stop_for, STATES_FILE
 import os
 from datetime import datetime
 import carla
+import json
 
 class Behaviour:
     '''
@@ -32,6 +33,18 @@ class Behaviour:
         self.REFERENCE_MASS = Ref_Mass
         self.LANE_INVASION_WINDOW = 5.0
     
+    def updateJson(self, key, value):
+        try:
+            with open(STATES_FILE, 'r') as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            data = {}
+
+        data[key] = value
+
+        with open(STATES_FILE, 'w') as f:
+            json.dump(data, f, indent=4)
+
     def get_speed(self):
         velocity = self.vehicle.vehicle.get_velocity()
         current_speed = (velocity.x**2 + velocity.y**2 + velocity.z**2)**0.5
@@ -176,6 +189,7 @@ class Behaviour:
                 print(f"***** Multiple Lane Invasions Detected: {source} *****")
                 self.error_log.append(("Lane Invasion", source))
                 self.errors += 1
+                self.updateJson("driving_score", MAX_ERRORS_ALLOWED - self.errors)
                 self.write_summary_file()
                 self.lane_invasion_times.clear()
 
@@ -190,12 +204,14 @@ class Behaviour:
                 
                 self.error_log.append(("Collision", actor_type))
                 self.errors += 1
+                self.updateJson("driving_score", MAX_ERRORS_ALLOWED - self.errors)
                 self.write_summary_file()
 
                 if intensity > dynamic_threshold:
                     print("***** DANGEROUS COLLISION DETECTED *****")
                     self.error_log.append(("Dangerous Collision", actor_type))
                     self.errors += 1
+                    self.updateJson("driving_score", MAX_ERRORS_ALLOWED - self.errors)
                     self.write_summary_file()
 
         if sensor_data['obstacle_events']:
@@ -207,6 +223,7 @@ class Behaviour:
                 print("***** Alarm: Watch Out *****")
                 self.error_log.append(("Obstacle Proximity", obstacle_type))
                 self.errors += 1
+                self.updateJson("driving_score", MAX_ERRORS_ALLOWED - self.errors)
                 self.write_summary_file()
             elif distance < Max_dis:
                 print("***** Alarm: Watch Out *****")

@@ -1,0 +1,22 @@
+{
+    "engine_on": false,
+    "speed_limit": 150,
+    "driving_score": 3,
+    "drowsiness_mode": false,
+    "violations": [
+        {
+            "type": "speeding",
+            "value": 75,
+            "timestamp": "2025-06-19T10:15:30Z"
+        },
+        {
+            "type": "sudden_braking",
+            "value": -12,
+            "timestamp": "2025-06-19T10:20:15Z"
+        },
+        {
+            "type": "lane_departure",
+            "timestamp": "2025-06-19T10:25:05Z"
+        }
+    ]
+}

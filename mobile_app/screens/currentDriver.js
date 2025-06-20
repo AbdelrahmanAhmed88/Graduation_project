@@ -29,11 +29,13 @@ export default function UserProfile({ navigation }) {
   const route = useRoute();
   const { vin, userId } = route.params || {};
 
-  const [name, setName] = useState('');
+  const [name, setName] = useState('Abdelrahman Ahmed');
   const [speedLimit, setSpeedLimit] = useState('');
   const [maxSpeed, setMaxSpeed] = useState('');
   const [aggressiveDriving, setAggressiveDriving] = useState('');
   const [drowsiness, setDrowsiness] = useState('');
+  const [drowsinessState, setDrowsinessState] = useState('Drowsy');
+  const [drowsinessImage , setDrowsinessImage] = useState('')
   const [focus, setFocus] = useState('');
   const [drivingScore, setDrivingScore] = useState(0);
   const [image, setImage] = useState('');
@@ -58,15 +60,16 @@ export default function UserProfile({ navigation }) {
         const imageUrl = `http://${ip}:5000/users/images/${userData.image}`;
         setImage(imageUrl);
 
-        if (userData.driving_score === 0) {
+        if (userData.driving_score === 10) {
           setScoreLottie(require('../assets/border-success-secoundry.json'));
-        } else if (userData.driving_score < 3) {
+        } else if (userData.driving_score > 7) {
           setScoreLottie(require('../assets/border-success.json'));
-        } else if (userData.driving_score < 7) {
+        } else if (userData.driving_score < 3) {
           setScoreLottie(require('../assets/border-warning.json'));
         } else {
           setScoreLottie(require('../assets/border-danger.json'));
         }
+
 
         hideAlert();
       }
@@ -79,11 +82,24 @@ export default function UserProfile({ navigation }) {
     }
   };
 
+
   useEffect(() => {
     if (userId) {
       fetchUserData();
     }
   }, []);
+  useEffect(() => {
+    if (drowsinessState === "Awake") {
+      setDrowsinessImage(require('../assets/emoji/Awake.png'));
+    } else if (drowsinessState === "Break") {
+      setDrowsinessImage(require('../assets/emoji/Break.png'));
+    } else if (drowsinessState === "Drowsy") {
+      setDrowsinessImage(require('../assets/emoji/Drowsy.png'));
+    } else if (drowsinessState === "ASleep") {
+      setDrowsinessImage(require('../assets/emoji/Asleep.png'));
+    }
+  }, [drowsinessState]);
+  
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -154,7 +170,7 @@ export default function UserProfile({ navigation }) {
           </View>
         </View>
 
-        <View style={styles.scoreContainer}>
+        <View style={styles.singleContainers}>
           <View style={styles.overlay}>
             <Text style={styles.containerMainText}>Driving Score</Text>
             <View style={styles.scoreOuterCircle}>
@@ -170,7 +186,38 @@ export default function UserProfile({ navigation }) {
             </View>
           </View>
         </View>
+
+        <View style={styles.singleContainers}>
+          <View style={styles.overlay}>
+            <Text style={styles.containerMainText}>Drowsiness Monitor</Text>
+            <Image
+              source={drowsinessImage}
+              style={styles.drowsiness_container_image}
+              resizeMode="contain"
+            />
+          </View>
+        </View>
+
+        <View style={styles.singleContainers}>
+          <View style={styles.overlay}>
+            <Text style={styles.containerMainText}>Distraction Mode</Text>
+            <View style={styles.scoreOuterCircle}>
+              {scoreLottie ? (
+                <LottieView
+                  source={scoreLottie}
+                  autoPlay
+                  loop
+                  style={styles.scoreInnerCircle}
+                />
+              ) : null}
+              <Text style={styles.scoreText}>{drivingScore}</Text>
+            </View>
+          </View>
+        </View>
+
       </ScrollView>
+
+      
 
       <View style={styles.bottomNavBlurContainer}>
         <BlurView
@@ -229,7 +276,6 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     width: width,
-    marginBottom: 0,
   },
   name: {
     fontSize: 25,
@@ -273,7 +319,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     borderRadius: 150,
   },
-  scoreContainer: {
+  singleContainers: {
     marginTop: 40,
     width: width * 0.95,
     marginHorizontal: width * 0.025,
@@ -290,7 +336,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 20,
     elevation: 20,
-    marginBottom: 60,
+    marginBottom: 0,
   },
   scoreOuterCircle: {
     width: width,
@@ -303,8 +349,8 @@ const styles = StyleSheet.create({
   },
   containerMainText: {
     fontSize: 20,
+    color: colors.primary,
     fontWeight: 'bold',
-    color: '#FFFFFF',
     marginVertical: 20,
     marginLeft: 20,
   },
@@ -317,6 +363,12 @@ const styles = StyleSheet.create({
     fontSize: 100,
     fontWeight: 'bold',
     color: colors.white,
+  },
+  drowsiness_container_image:{
+    width:200,
+    height:200,
+    alignSelf: 'center',
+
   },
   bottomNavBlurContainer: {
     position: 'absolute',
@@ -332,7 +384,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 100,
     elevation: 20, // Android shadow
-    borderWidth: 2,
+    // borderWidth: 2,
     borderColor: colors.primary, 
   },
   bottomNavBlur:{

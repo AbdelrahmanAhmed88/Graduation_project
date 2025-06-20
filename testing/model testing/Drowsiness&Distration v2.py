@@ -142,7 +142,7 @@ while True:
                 if distraction_start_time is None:
                     distraction_start_time = time.time()
                 elif time.time() - distraction_start_time > WARNING_THRESHOLD:
-                    play_tone(300, 0.4)
+                    # play_tone(300, 0.4)
                     cv2.putText(frame, f"WARNING: Distracted ({distraction_reason})", (30, 80),
                                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
             else:
@@ -179,19 +179,23 @@ while True:
             if YAWN_TIME >= YAWN_TIME_THRESH:
                 D_TIME = 0
                 cv2.putText(frame, "YAWNING DETECTED!", (30, 120), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 165, 255), 2)
-                play_tone(700, 0.4)
+                print("YAWNING DETECTED!")
+                # play_tone(700, 0.4)
 
             elif pitch_angle is not None and pitch_angle > PITCH_LOOKING_DOWN_THRESHOLD:
                 LOOKING_DOWN_TIME += (t2 - t1)
                 cv2.putText(frame, "LOOKING DOWN", (30, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 200, 0), 2)
-                play_tone(500, 0.5)
+                print("DISTRACTION DETECTED!")
+                # play_tone(500, 0.5)
                 if LOOKING_DOWN_TIME >= LOOKING_DOWN_DURATION_THRESHOLD:
                     cv2.putText(frame, "DROWSINESS ALERT (Head Down)!", (30, 180), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-                    play_tone(440, 0.7)
+                    print("DROWSINESS DETECTED!")
+                    # play_tone(440, 0.7)
 
             elif D_TIME >= WAIT_TIME:
                 cv2.putText(frame, "DROWSINESS ALERT!", (30, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-                play_tone(440, 0.7)
+                print("DROWSINESS DETECTED!")
+                # play_tone(440, 0.7)
             else :
                LOOKING_DOWN_TIME = 0
 
@@ -205,7 +209,7 @@ while True:
             )
 
     t1 = t2
-    cv2.imshow("Driver Monitoring Distraction and Drowsiness", frame)
+    # cv2.imshow("Driver Monitoring Distraction and Drowsiness", frame)
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 
