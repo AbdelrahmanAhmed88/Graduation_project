@@ -23,6 +23,7 @@ exports.getUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
     try {
+        console.log(req);
         const updatedUser = await USER.findOneAndUpdate(
             { user_id: req.params.userID },
             { $set: { ...req.body } }

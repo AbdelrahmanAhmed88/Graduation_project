@@ -8,7 +8,10 @@ const {
     getVehicleUsers,
     deleteUserFromVehicle,
     loginAdmin,
-    editUserName
+    editUserName,
+    setCurrentDriver,
+    getCurrentDriver,
+    deleteCurrentDriver
 } = require('../controllers/vehicleController');
 
 router.post('/', registerVehicle);
@@ -18,6 +21,15 @@ router.post('/users', addUserToVehicle);
 router.delete('/:vehicleId/users/:userId', deleteUserFromVehicle);
 router.get('/:vehicle_id/usersID', getVehicleUsers);
 router.post('/login', loginAdmin);
-router.patch('/:vehicleId/users/:usersID', editUserName); 
+router.patch('/:vehicleId/users/:usersID', editUserName);
+
+//current driver api
+router.patch('/:vehicle_id/currentDriver', setCurrentDriver);
+//get current driver api
+router.get('/:vehicle_id/currentDriver', getCurrentDriver);
+//delete current driver
+router.delete('/:vehicle_id/currentDriver', deleteCurrentDriver);
+
+
 
 module.exports = router;

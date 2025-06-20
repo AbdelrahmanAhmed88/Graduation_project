@@ -1,5 +1,6 @@
 # driver_Data.py
 import time
+from api_client.backend_api import update_current_driver_data
 
 class DriverSession:
     def __init__(self):
@@ -21,6 +22,11 @@ class DriverSession:
         self.drowsiness_mode = user_data["drowsiness_mode"]
         self.focus_mode = user_data["focus_mode"]
         self.start_time = time.time()
+    
+    def updateDriverStates(self,drowsiness_state,focus_state):
+        self.drowsiness_mode = drowsiness_state
+        self.focus_mode = focus_state
+        update_current_driver_data(self.user_id,drowsiness_state,focus_state)
 
     def console_print(self):
         print("Driver Name: ", self.user_name)

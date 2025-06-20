@@ -193,3 +193,66 @@ exports.editUserName = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 }
+
+exports.getCurrentDriver = async (req, res) => {
+    try {
+        const { vehicle_id } = req.params;
+        const vehicle = await VEHICLE.findOne({ vehicle_id });
+        if (!vehicle) {
+            return res.status(404).json({ success: false, message: "Vehicle not found" });
+        }
+        if (!vehicle.currentDriver.user_id) {
+            return res.status(404).json({ success: false, message: "No current driver assigned" });
+        }
+        return res.status(200).json({ success: true, currentDriver: vehicle.currentDriver });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}
+
+exports.setCurrentDriver = async (req, res) => {
+    try {
+        const { vehicle_id } = req.params;
+        const { user_id, drowsiness_state, focus_state } = req.body;
+        console.log(vehicle_id);
+        const vehicle = await VEHICLE.findOne({ vehicle_id: vehicle_id });
+
+        if (!vehicle) {
+            return res.status(404).json({ success: false, message: "Vehicle not found" });
+        }
+
+        vehicle.currentDriver = {
+            user_id,
+            drowsiness_state,
+            focus_state
+        };
+        await vehicle.save();
+        return res.status(200).json({ success: true, message: "Current driver set successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}
+
+exports.deleteCurrentDriver = async (req, res) => {
+    try {
+        const { vehicle_id } = req.params;
+
+        const vehicle = await VEHICLE.findOne({ vehicle_id });
+        if (!vehicle) {
+            return res.status(404).json({ success: false, message: "Vehicle not found" });
+        }
+
+        vehicle.currentDriver = {
+            user_id: null,
+            drowsiness_state: null,
+            focus_state: null
+        };
+        await vehicle.save();
+        return res.status(200).json({ success: true, message: "Current driver deleted successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}

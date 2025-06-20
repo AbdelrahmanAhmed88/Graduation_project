@@ -8,6 +8,7 @@ import Feather from '@expo/vector-icons/Feather';
 import axios from 'axios';
 import * as Notifications from 'expo-notifications';
 import { getSelectedVehicle } from '../storage/vehicleStorage';
+import { BlurView } from 'expo-blur';
 
 
 import ip from '../connections/ip'
@@ -219,8 +220,30 @@ export default function HomeScreen({ navigation }) {
 
       </ScrollView>
 
-
-      {/* Bottom Navigation */}
+      <View style={styles.bottomNavBlurContainer}>
+        <BlurView
+          style={styles.bottomNavBlur}
+          intensity={40}
+          tint="systemMaterialDark" 
+          experimentalBlurMethod="dimezisBlurView" 
+        >
+          <View style={styles.bottomNavBlurOverlay}>
+            <TouchableOpacity onPress={() => navigation.navigate('Garage')}>
+              <FontAwesome6 name="square-parking" size={30} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <FontAwesome6 name="car" size={30} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => {navigation.navigate('settings',{vin: vin})}}
+            >
+              <Feather name="settings" size={30} color="white" />
+            </TouchableOpacity>
+          </View>
+        </BlurView>
+      </View>
+      
+      {/* OLD Bottom Navigation
       <View style={[styles.bottomNav,{width:screenWidth}]}>
         <TouchableOpacity onPress={() => navigation.navigate('Garage')}>
           <FontAwesome6 name="square-parking" size={30} color="white" />
@@ -233,7 +256,7 @@ export default function HomeScreen({ navigation }) {
         >
           <Feather name="settings" size={30} color="white" />
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View>
   );
 }
@@ -390,6 +413,37 @@ const portraitStyles = (screenWidth,screenHeight) => StyleSheet.create({
     width: 30,
     height: 30,
   },
+  bottomNavBlurContainer: {
+    position: 'absolute',
+    bottom: 20,
+    width: width * 0.9,
+    height: 60,
+    borderRadius: 30,
+    overflow: 'hidden',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 100,
+    elevation: 20, // Android shadow
+    borderWidth: 2,
+    borderColor: colors.primary, 
+  },
+  bottomNavBlur:{
+    width:width *0.9,
+    alignitems: 'center',
+    justifyContent: "space-evenly",
+    flexDirection: 'row',
+    height: 60,
+  },
+  bottomNavBlurOverlay:{
+    width:"100%",
+    alignItems: 'center',
+    justifyContent:'space-evenly',
+    flexDirection:'row',
+  }
+
 });
 
 const landscapeStyles = (screenWidth,screenHeight) => StyleSheet.create({

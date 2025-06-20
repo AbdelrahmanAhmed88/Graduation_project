@@ -1,10 +1,14 @@
 from serial_reader.reader import SerialReader
 from Models.faceCheckModelExec import face_check, store_encoding
+from carla_communication.carla_interface import update_speed_limit
 import subprocess
 from config import vehicle_config
 from config.driver_Data import session
 import webbrowser
 import time
+
+#watcher for json file 
+from carla_communication.vehicle_state_watcher import start_watching
 
 #websockets for real-time notifications
 from websocket_client.VehicleWebSocketClient import VehicleWebSocketClient
@@ -16,7 +20,7 @@ time.sleep(1)
 
 
 #apis
-from api_client.backend_api import validate_nfc, get_user_data
+from api_client.backend_api import validate_nfc, get_user_data, update_user_data
 from api_client.get_images import download_images_for_car  
 
 reader = None  # Global reader
@@ -30,6 +34,8 @@ def my_callback(userID):
     if(driver_info):
         reader.send("U")
         session.updateDriverData(driver_info["user"])
+        if(session.speed_limit):
+            update_speed_limit(session.max_speed)
         session.console_print()
         auth(userID,vehicle_config.VIN)
     else:
@@ -49,14 +55,15 @@ def openFirstTimeScreen():
 
 def auth(user_id, vehicle_id):
     print(f"Opening website for user {user_id}")
-    vehicle_client.connect()
     url = f"http://localhost:3000/Firsttimelogin2/Firsttimelogin3/HomePage?u={user_id}&v={vehicle_id}"
     
     try:
         # Use webbrowser to open the URL directly in the default browser
         webbrowser.open(url)
-        time.sleep(10)
+        vehicle_client.connect()
+        time.sleep(3)
         vehicle_client.send_message(f"Welcome {session.user_name}. You can now start the car.")
+        session.updateDriverStates("Awake","Focused")
         
         # print("URL opened successfully")
     except Exception as e:
@@ -69,7 +76,7 @@ def masterCardAccessHomepage():
     try:
         # Use webbrowser to open the URL directly in the default browser
         webbrowser.open(url)
-        
+        vehicle_client.send_message(f"Vehicle Unlocked by Master Card.")
         # print("URL opened successfully")
     except Exception as e:
         print(f"Error opening the website: {e}")
@@ -114,11 +121,25 @@ def handle_command(command):
     # Add your command handling logic here
     # Example: Control actuators, send responses, etc.
 
+def on_vehicle_state_change(data, changes):
+    print(f"[MAIN] vehicle_state.json changed:")
+    
+    for key, change in changes.items():
+        print(f" - {key} changed from {change['old']} → {change['new']}")
+    
+    # Apply new speed limit if updated
+    if 'driving_score' in changes and data.get("driving_score", 0) >= 0:
+        update_user_data(session.user_id, {"driving_score": data.get("driving_score")})
+
+
+
+
 # Main program execution
 def main():
     if(vehicle_config.FIRST_START == True):
         openFirstTimeScreen()
 
+    start_watching(on_vehicle_state_change)
     # Create a SerialReader instance
     global reader
     reader = SerialReader(port=vehicle_config.SERIAL_PORT, baudrate=vehicle_config.BAUD_RATE, delimiter=vehicle_config.DELIMITER)
@@ -131,6 +152,7 @@ def main():
 
     # Start reading from the serial port
     reader.start()
+
 
     # Keep the main thread alive (otherwise the program will exit immediately)
     try:

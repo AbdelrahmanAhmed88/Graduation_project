@@ -19,11 +19,17 @@ const vehicleSchema = new mongoose.Schema({
     password: { type: String, required: true }
   },
 
+  currentDriver:{
+    user_id: { type: String, required: false ,default: null},
+    drowsiness_state: { type: String, required: false ,default: null },
+    focus_state: { type: String, required: false ,default: null },
+  },
+
   users: [
     {
       name: { type: String, required: true },
       // role: { type: String, enum: ["admin", "user"], required: true }, // Role: owner/user
-      user_id: { type: String, required: true } // NFC ID
+      user_id: { type: String, required: true }
     }
   ]
 });

@@ -1,0 +1,28 @@
+import json
+import threading
+import os
+
+STATES_FILE = r"C:\Bedo\Graduation project\Carla\Carla 0.9.11\vehicle_state.json"
+_lock = threading.Lock()
+
+def read_state():
+    with _lock:
+        try:
+            with open (STATES_FILE, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"[Read Error] {e}")
+            return {}
+
+def write_state(data:dict):
+    with _lock:
+        try:
+            with open (STATES_FILE, 'w') as f:
+                json.dump(data,f,indent=4)
+        except Exception as e:
+            print(f"[Write Error] {e}")
+
+def update_speed_limit(new_limit: int):
+    state = read_state()
+    state["speed_limit"] = new_limit
+    write_state(state)
