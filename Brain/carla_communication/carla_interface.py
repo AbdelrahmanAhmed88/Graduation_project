@@ -22,6 +22,11 @@ def write_state(data:dict):
         except Exception as e:
             print(f"[Write Error] {e}")
 
+def update_drowsiness_mode(mode: bool):
+    state = read_state()
+    state["drowsiness_mode"] = mode
+    write_state(state)
+
 def update_speed_limit(new_limit: int):
     state = read_state()
     state["speed_limit"] = new_limit

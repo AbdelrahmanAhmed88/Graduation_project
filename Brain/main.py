@@ -1,8 +1,7 @@
 from serial_reader.reader import SerialReader
 from Models.faceCheckModelExec import face_check, store_encoding
-from Models.drowsiness_distraction_ModelExec import DrowsinessDistractionDetectionexec
-
-from carla_communication.carla_interface import update_speed_limit
+from Models.drowsiness_distraction_ModelExec import DrowsinessDistractionDetectionexec, stop_drowsiness_distraction_detection
+from carla_communication.carla_interface import update_drowsiness_mode, update_speed_limit
 import subprocess
 from config import vehicle_config
 from config.driver_Data import session
@@ -14,9 +13,13 @@ from carla_communication.vehicle_state_watcher import start_watching
 
 #websockets for real-time notifications
 from websocket_client.VehicleWebSocketClient import VehicleWebSocketClient
+from screen_connection.screen_websocket_connection import ScreenWebSocketClient
 
 vehicle_client = VehicleWebSocketClient(vehicle_config.VIN,vehicle_config.WEB_SOCKET_SERVER_URL)
 vehicle_client.connect()
+
+screen_client = ScreenWebSocketClient()
+screen_client.connect()
 time.sleep(1)
 
 
@@ -44,13 +47,42 @@ def my_callback(userID):
     else:
         reader.send("N")
 
+# Global flags
+is_drowsy = False
+is_distracted = False
+is_yawning = False
+
 def DDD_callback(message):
+    global is_drowsy, is_distracted, is_yawning
+
     if "DROWSINESS" in message:
-        print("⚠️  Drowsiness Alert!")
+        if not is_drowsy:
+            is_drowsy = True
+            is_yawning = True
+            update_drowsiness_mode(True)
+            screen_client.display_message("DROWSINESS_STATE", "Asleep")
+            vehicle_client.send_message("Drowsiness detected. Please check on the driver to ensure they are okay.")
+            session.updateDriverStates("Asleep","Focused")
+            print("Drowsiness Action start!")
     elif "DISTRACTION" in message:
-        print("🚨 Distraction Alert!")
-    else:
-        print(f"Message: {message}")
+        if not is_distracted:
+            is_distracted = True
+            print("🚨 Distraction Alert!")
+    elif "YAWNING" in message:
+        if not is_yawning:
+            is_yawning = True
+            screen_client.display_message("DROWSINESS_STATE", "DROWSY")
+            vehicle_client.send_message("The driver seems drowsy. Please make sure they're safe and alert.")
+            session.updateDriverStates("Drowsy","Focused")
+            print("Yawning Alert!")
+    elif "NORMAL" in message or "FOCUSED" in message or "AWAKE" in message:
+        # Reset all flags when driver returns to normal state
+        is_drowsy = False
+        is_distracted = False
+        is_yawning = False
+        screen_client.display_message("DROWSINESS_STATE", "Awake")
+        print("Driver state normal. Resetting alerts.")
+
 
 
 def openFirstTimeScreen():
@@ -73,7 +105,8 @@ def auth(user_id, vehicle_id):
         # Use webbrowser to open the URL directly in the default browser
         webbrowser.open(url)
         vehicle_client.connect()
-        time.sleep(3)
+        time.sleep(2)
+        screen_client.display_message("NOTIFICATION", f"Welcome {session.user_name}. You can now start the car.")
         vehicle_client.send_message(f"Welcome {session.user_name}. You can now start the car.")
         session.updateDriverStates("Awake","Focused")
         
@@ -88,6 +121,8 @@ def masterCardAccessHomepage():
     try:
         # Use webbrowser to open the URL directly in the default browser
         webbrowser.open(url)
+        time.sleep(2)
+        screen_client.display_message("NOTIFICATION", "Vehicle Unlocked by Master Card.")
         vehicle_client.send_message(f"Vehicle Unlocked by Master Card.")
         # print("URL opened successfully")
     except Exception as e:
@@ -143,7 +178,11 @@ def on_vehicle_state_change(data, changes):
     if 'driving_score' in changes and data.get("driving_score", 0) >= 0:
         update_user_data(session.user_id, {"driving_score": data.get("driving_score")})
     if 'engine_on' in changes and data.get("engine_on", 0) == True:
+        print("Drwosiness and Distraction Detection start")
         DrowsinessDistractionDetectionexec(DDD_callback)
+    if 'engine_on' in changes and data.get("engine_on", 0) == False:
+        print("Drwosiness and Distraction Detection stop")
+        stop_drowsiness_distraction_detection()
 
 
 
