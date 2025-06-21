@@ -23,9 +23,8 @@ wss.on('connection', (ws) => {
   if (text === 'browser') {
     browserClient = ws;
   }
-
-  if (text === 'sleep' && browserClient) {
-    browserClient.send('sleep');
+  if (browserClient){
+    browserClient.send(text)
   }
 });
 
