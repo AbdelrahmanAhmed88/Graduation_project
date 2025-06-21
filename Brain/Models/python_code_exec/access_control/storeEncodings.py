@@ -5,7 +5,7 @@ import face_recognition
 from simple_facerec import SimpleFacerec
 
 # File to store encodings   r"E:/engeneering/graduation project/project/backend-nodejs/python_code_exec/python/access_control/encodings.pkl"
-encodings_file = f"./Models/python_code_exec/python/access_control//encodings.pkl" 
+encodings_file = f"./Models/python_code_exec/access_control//encodings.pkl" 
 # Load existing encodings if the file exists
 if os.path.exists(encodings_file):
     with open(encodings_file, "rb") as f:
@@ -18,7 +18,7 @@ sfr = SimpleFacerec()
 
 # Load new images from the "images" folder 
 # old path 
-image_path =  f"./Models/python_code_exec/python/access_control/images"
+image_path =  f"./Models/python_code_exec/access_control/images"
 for img_name in os.listdir(image_path):
     img_path = os.path.join(image_path, img_name)
     img = cv2.imread(img_path)

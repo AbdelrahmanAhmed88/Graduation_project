@@ -39,7 +39,7 @@ def download_user_image(car_id, user_id):
     image_url = f"{base_url}/users/images/{filename}"
     
     # Create a local folder for the car if it doesn't exist
-    download_folder = f"./Models/python_code_exec/python/access_control/images"
+    download_folder = f"./Models/python_code_exec/access_control/images"
     os.makedirs(download_folder, exist_ok=True)
     
     # Request the image from the API
