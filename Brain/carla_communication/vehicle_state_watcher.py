@@ -4,7 +4,7 @@ from watchdog.events import FileSystemEventHandler
 import time
 import threading
 
-STATES_FILE = r"C:\Bedo\Graduation project\Carla\Carla 0.9.11\vehicle_state.json"
+STATES_FILE = r"C:\Bedo\github_repo\Graduation_project\Carla 0.9.11\vehicle_state.json"
 
 class VehicleStateHandler(FileSystemEventHandler):
     def __init__(self, callback):

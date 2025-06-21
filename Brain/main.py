@@ -1,5 +1,7 @@
 from serial_reader.reader import SerialReader
 from Models.faceCheckModelExec import face_check, store_encoding
+from Models.drowsiness_distraction_ModelExec import DrowsinessDistractionDetectionexec
+
 from carla_communication.carla_interface import update_speed_limit
 import subprocess
 from config import vehicle_config
@@ -28,6 +30,7 @@ reader = None  # Global reader
 # driver_info = {}
 
 
+# Callbacks
 def my_callback(userID):
     print(f"Identity detected: {userID}")
     driver_info = get_user_data(userID)
@@ -40,6 +43,15 @@ def my_callback(userID):
         auth(userID,vehicle_config.VIN)
     else:
         reader.send("N")
+
+def DDD_callback(message):
+    if "DROWSINESS" in message:
+        print("⚠️  Drowsiness Alert!")
+    elif "DISTRACTION" in message:
+        print("🚨 Distraction Alert!")
+    else:
+        print(f"Message: {message}")
+
 
 def openFirstTimeScreen():
     print(f"Opening first time screen")
@@ -130,6 +142,8 @@ def on_vehicle_state_change(data, changes):
     # Apply new speed limit if updated
     if 'driving_score' in changes and data.get("driving_score", 0) >= 0:
         update_user_data(session.user_id, {"driving_score": data.get("driving_score")})
+    if 'engine_on' in changes and data.get("engine_on", 0) == True:
+        DrowsinessDistractionDetectionexec(DDD_callback)
 
 
 
