@@ -7,7 +7,7 @@ TIMEOUT = 1                 # seconds
 DELIMITER = '!'
 VIN = "1HGCM82633A004352"
 CAR_MODEL = "Model B"
-FIRST_START = True
+FIRST_START = False
 MASTER_CARDS = {"D3BD70FA"}
 
 

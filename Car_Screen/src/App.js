@@ -8,9 +8,10 @@ import UserProfile from "./componant/UserProfile";
 import ShowAllUsers from "./componant/ShowAllUsers";
 import CurrentUser from "./componant/CurrentUser";
 import ChangeAdminInfo from "./componant/ChangeAdminInfo";
+import { DrivingProvider } from "./componant/DrivingContext";
 function App() {
   return (
-    
+    <DrivingProvider>
     <Router>
     <Routes>
     
@@ -26,6 +27,7 @@ function App() {
     </Routes>
       
     </Router>
+    </DrivingProvider>
     
   );
 }

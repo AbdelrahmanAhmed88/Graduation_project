@@ -29,7 +29,7 @@ def calculate_face_encodings(image_folder):
     return known_face_encodings, known_face_names
 
 # Step 2: Initialize SimpleFacerec with calculated encodings r"E:/engeneering/graduation project/project/Brain/Models/python_code_exec/python/access_control/images/"
-image_folder = f"./Models/python_code_exec/python/access_control/images/"  # Folder containing images for face encodings
+image_folder = f"./Models/python_code_exec/access_control/images/"  # Folder containing images for face encodings
 known_face_encodings, known_face_names = calculate_face_encodings(image_folder)
 
 sfr = SimpleFacerec()
@@ -37,7 +37,7 @@ sfr.known_face_encodings = known_face_encodings
 sfr.known_face_names = known_face_names
 
 # Step 3: Load anti-spoofing model r"E:/engeneering/graduation project/project/Brain/Models/python_code_exec/python/access_control/best.pt"
-antispoofing_model = YOLO(f"./Models/python_code_exec/python/access_control/best.pt")
+antispoofing_model = YOLO(f"./Models/python_code_exec/access_control/best.pt")
 
 # Step 4: Open the camera
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)

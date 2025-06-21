@@ -5,7 +5,8 @@ CAR_MODEL = "Model B"
 
 def openFirstTimeScreen():
     print("Opening first time screen")
-    url = f"http://localhost:3000/?v={VIN}&c={CAR_MODEL}"
+    
+    url = f"http://localhost:3000/Firsttimelogin2/Firsttimelogin3/HomePage/?v={VIN}&c={CAR_MODEL}"
 
     try:
         webbrowser.get("windows-default").open(url)
