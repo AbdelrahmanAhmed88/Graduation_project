@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     user_id:{type: String,required: true,unique: true},
-    nfc_id: { type: String, required: true, unique: true }, 
     image: { type: String, required: true }, // Image URL
 
     // Driving preferences & settings

@@ -38,11 +38,11 @@ exports.updateUser = async (req, res) => {
 };
 
 exports.createUser = async (req, res) => {
-    const {nfc_id} = req.body;
-    if (!nfc_id) {
+    const {user_id} = req.body;
+    if (!user_id) {
         return res.status(400).json({ status: "FAIL", message: "Please enter all fields" });
     }
-    const existingUser = await USER.findOne({ nfc_id });
+    const existingUser = await USER.findOne({ user_id });
     if (existingUser) {
         return res.status(201).json({ status: "Success", message: "User already exists" });
     }
