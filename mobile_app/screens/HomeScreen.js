@@ -34,7 +34,9 @@ Notifications.setNotificationHandler({
 export default function HomeScreen({ navigation }) {
 
   const [vehicle, setVehicle] = useState(null);
-  
+  const [imageUrl, setImageUrl] = useState(null);
+  const [currentDriverID, setCurrentDriverID] = useState(null);
+
   useEffect(() => {
     const fetchVehicle = async () => {
       const selectedVehicle = await getSelectedVehicle();
@@ -50,6 +52,29 @@ export default function HomeScreen({ navigation }) {
   const vin = vehicle?.vin;
   // const image = vehicle?.image;
  
+  const fetchCurrentDriverImage = async () => {
+    try {
+
+      // showAlert('Loading...', 'loading');
+      const response = await axios.get(`http://${ip}:5000/api/vehicles/${vin}/currentDriver`);
+      const userId = response.data.currentDriver.user_id;
+      setCurrentDriverID(userId);
+      console.log(userId)
+      if (userId) {
+        console.log(userId)
+        const imageUrl = `http://${ip}:5000/users/images/${userId}.jpeg`;
+        setImageUrl(imageUrl);
+
+        // hideAlert();
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        showAlert('User not found', 'error');
+      } else {
+        showAlert('An error occurred', 'error');
+      }
+    }
+  };
 
 
   //oriantaion part
@@ -84,7 +109,7 @@ export default function HomeScreen({ navigation }) {
   
           await Notifications.scheduleNotificationAsync({
             content: {
-              title: '🚗 Message from hardware',
+              title: 'Car Alert',
               body: msg.message || 'New message from car',
             },
             trigger: null,
@@ -183,7 +208,7 @@ export default function HomeScreen({ navigation }) {
               <View style={styles.buttonRow}>
                 <CustomButton icon="lock"/>
                 <CustomButton icon="unlock" onPress={() => navigation.navigate('Control')} />
-                <CustomButton icon="lightbulb-o" />
+                <CustomButton icon="lightbulb-o" onPress={fetchCurrentDriverImage}/>
                 <CustomButton icon="volume-up"  onPress={testing}/>
                 <CustomButton image={require('../assets/fan-icon.png')} />
               </View>
@@ -198,9 +223,13 @@ export default function HomeScreen({ navigation }) {
                 </TouchableOpacity>
                 <View style={styles.profile_status_buttons}>
                   
-                  <TouchableOpacity style={styles.profileContainer} onPress={() => navigation.navigate('drivingScore')}>
+                <TouchableOpacity
+                  style={styles.profileContainer}
+                  onPress={() => navigation.navigate('currentDriver', { vin, currentDriverID })}
+                >
+
                   <View style={styles.outerCircle}>
-                    <Image source={require('../assets/profile.png')} style={styles.profileImage} />
+                  <Image source={{ uri: imageUrl }} style={styles.profileImage} />
                   </View>
                   </TouchableOpacity>
                 </View>

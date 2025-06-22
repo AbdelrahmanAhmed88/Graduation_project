@@ -224,7 +224,7 @@ exports.setCurrentDriver = async (req, res) => {
 
         vehicle.currentDriver = {
             user_id,
-            start_time,
+            // start_time,
             drowsiness_state,
             focus_state
         };

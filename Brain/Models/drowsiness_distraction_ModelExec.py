@@ -1,18 +1,27 @@
+import subprocess
+
 def DrowsinessDistractionDetectionexec(callback):
     try:
         process = subprocess.Popen(
-            ["python", "./Models/python_code_exec/drowsiness_distraction_detection/Drowsiness_Distration_v2.py"],
+            ["python", "-u", "./Models/python_code_exec/drowsiness_distraction_detection/Drowsiness&Distration v2.py"],
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,  # Merge stderr with stdout
+            stderr=subprocess.PIPE,
             text=True,
             bufsize=1
-        )
+)
 
+        # Read stdout line by line
         for line in process.stdout:
             cleaned_line = line.strip()
-            if cleaned_line:
-                print("[Subprocess Output]:", cleaned_line)  # Optional for debugging
+            if cleaned_line:  # avoid empty lines
                 callback(cleaned_line)
 
     except Exception as e:
         print(f"Unexpected error: {e}")
+
+def stop_drowsiness_distraction_detection():
+    global detection_process
+    if detection_process and detection_process.poll() is None:
+        print("Stopping detection subprocess...")
+        detection_process.terminate()  # or use .kill() if needed
+        detection_process.wait()

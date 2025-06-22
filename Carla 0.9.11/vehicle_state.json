@@ -1,7 +1,7 @@
 {
-    "engine_on": true,
+    "engine_on": false,
     "speed_limit": 150,
-    "driving_score": 3,
+    "driving_score": 5,
     "drowsiness_mode": false,
     "violations": [
         {

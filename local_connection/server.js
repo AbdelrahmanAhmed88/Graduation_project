@@ -20,7 +20,7 @@ wss.on('connection', (ws) => {
 
   console.log('Received:', text);
 
-  if (text === 'browser') {
+  if (['browser', 'Screen connected'].includes(text)) {
     browserClient = ws;
   }
   if (browserClient){

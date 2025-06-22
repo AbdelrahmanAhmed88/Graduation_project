@@ -21,7 +21,7 @@ const vehicleSchema = new mongoose.Schema({
 
   currentDriver:{
     user_id: { type: String, required: false ,default: null},
-    start_time: { type: Date, required: false ,default: null },
+    // start_time: { type: Date, required: false ,default: null },
     drowsiness_state: { type: String, required: false ,default: null },
     focus_state: { type: String, required: false ,default: null },
   },
