@@ -32,7 +32,9 @@ const vehicleSchema = new mongoose.Schema({
       // role: { type: String, enum: ["admin", "user"], required: true }, // Role: owner/user
       user_id: { type: String, required: true }
     }
-  ]
+  ],
+  
+  
 });
 
 

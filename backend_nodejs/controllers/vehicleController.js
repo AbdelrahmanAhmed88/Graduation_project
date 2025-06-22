@@ -1,7 +1,7 @@
 const VEHICLE = require('../models/vehicles.models');
 const bycrypt = require('bcrypt');
 const saltRounds = 10;
-
+ 
 exports.registerVehicle = async (req, res) => {
 
     const { vehicle_id, car_model ,admin} = req.body;
@@ -174,6 +174,7 @@ exports.loginAdmin = async (req, res) => {
 
 exports.editUserName = async (req, res) => {
     try {
+        
         const { vehicleId, usersID } = req.params;
         const { name } = req.body;
 

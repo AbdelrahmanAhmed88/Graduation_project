@@ -1,5 +1,4 @@
 const USER = require('../models/users.model');
-
 exports.getAllUsers = async (req, res) => {
     try {
         const users = await USER.find({}, { "__V": false });
@@ -23,10 +22,14 @@ exports.getUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
     try {
+           if ("updated" in req.body) {
+            delete req.body.updated;
+        }
         console.log(req);
         const updatedUser = await USER.findOneAndUpdate(
             { user_id: req.params.userID },
-            { $set: { ...req.body } }
+            { $set: { ...req.body , updated: true} },
+            { new: true }
         );
         if (!updatedUser) {
             return res.status(404).json({ status: "FAIL", message: "User ID not found" });

@@ -15,7 +15,8 @@ const userSchema = new mongoose.Schema({
 
     //score
     driving_score: { type: Number, default: 10 },
-    punishment: {type: Boolean, default: false}
+    punishment: {type: Boolean, default: false},
+    updated:{type: Boolean, default: false}
 });
 
 module.exports = mongoose.model('Users', userSchema);
