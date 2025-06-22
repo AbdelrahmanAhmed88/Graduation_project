@@ -37,7 +37,7 @@ export default function App() {
           <Stack.Screen name="settings" component={settingsScreen} options={{lazy:true}} />
           <Stack.Screen name="vehicleDrivers" component={vehicleDrivers} options={{lazy:true}} />
           <Stack.Screen name="editUserData" component={editUserDataScreen} options={{lazy:true}} />
-          <Stack.Screen name="drivingScore" component={currentDriverScreen} options={{lazy:true}} />
+          <Stack.Screen name="currentDriver" component={currentDriverScreen} options={{lazy:true}} />
         </Stack.Navigator>
       </AlertProvider>
     </NavigationContainer>

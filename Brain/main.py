@@ -51,9 +51,12 @@ def my_callback(userID):
 is_drowsy = False
 is_distracted = False
 is_yawning = False
+need_break = False
+
+yawn_num = 0
 
 def DDD_callback(message):
-    global is_drowsy, is_distracted, is_yawning
+    global is_drowsy, is_distracted, is_yawning ,yawn_num
 
     if "DROWSINESS" in message:
         if not is_drowsy:
@@ -70,11 +73,15 @@ def DDD_callback(message):
             print("🚨 Distraction Alert!")
     elif "YAWNING" in message:
         if not is_yawning:
-            is_yawning = True
-            screen_client.display_message("DROWSINESS_STATE", "DROWSY")
-            vehicle_client.send_message("The driver seems drowsy. Please make sure they're safe and alert.")
-            session.updateDriverStates("Drowsy","Focused")
-            print("Yawning Alert!")
+            if(yawn_num == 2):
+                is_yawning = True
+                screen_client.display_message("DROWSINESS_STATE", "BREAK")
+            else:
+                yawn_num += 1
+                screen_client.display_message("DROWSINESS_STATE", "DROWSY")
+                vehicle_client.send_message("The driver seems drowsy. Please make sure they're safe and alert.")
+                session.updateDriverStates("Drowsy","Focused")
+                print("Yawning Alert!")
     elif "NORMAL" in message or "FOCUSED" in message or "AWAKE" in message:
         # Reset all flags when driver returns to normal state
         is_drowsy = False

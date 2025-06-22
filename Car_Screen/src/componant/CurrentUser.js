@@ -59,10 +59,10 @@ export default function CurrentUser() {
           <div className="separator"></div>
           <div className="profile-right">
             <div className="info-container">
-              <div className="info-row">
+              {/* <div className="info-row">
                 <span className="info-label">NFC ID</span>
                 <span className="info-value">{userData?.nfc_id}</span>
-              </div>
+              </div> */}
               <div className="info-row">
                 <span className="info-label">Speed Limit</span>
                 <span className="info-value">{userData?.speed_limit ? "Enabled" : "Disabled"}</span>

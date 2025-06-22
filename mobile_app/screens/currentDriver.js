@@ -27,14 +27,14 @@ export default function UserProfile({ navigation }) {
   const { showAlert, hideAlert } = useAlert();
 
   const route = useRoute();
-  const { vin, userId } = route.params || {};
+  const { vin, currentDriverID } = route.params || {};
 
-  const [name, setName] = useState('Abdelrahman Ahmed');
+  const [name, setName] = useState('');
   const [speedLimit, setSpeedLimit] = useState('');
   const [maxSpeed, setMaxSpeed] = useState('');
   const [aggressiveDriving, setAggressiveDriving] = useState('');
   const [drowsiness, setDrowsiness] = useState('');
-  const [drowsinessState, setDrowsinessState] = useState('Drowsy');
+  const [drowsinessState, setDrowsinessState] = useState('');
   const [drowsinessImage , setDrowsinessImage] = useState('')
   const [focus, setFocus] = useState('');
   const [drivingScore, setDrivingScore] = useState(0);
@@ -45,8 +45,15 @@ export default function UserProfile({ navigation }) {
   const fetchUserData = async () => {
     try {
       showAlert('Loading...', 'loading');
-      const response = await axios.get(`http://${ip}:5000/api/users/${userId}`);
+      const response = await axios.get(`http://${ip}:5000/api/users/${currentDriverID}`);
       const userData = response.data.user;
+
+      const statusResponse = await axios.get(`http://${ip}:5000/api/vehicles/${vin}/currentDriver`);
+      const DriverStatus = statusResponse.data.currentDriver;
+      if(DriverStatus)
+        {
+          setDrowsinessState(DriverStatus.drowsiness_state.toLowerCase());
+        }
 
       if (userData) {
         setName(userData.name);
@@ -84,18 +91,18 @@ export default function UserProfile({ navigation }) {
 
 
   useEffect(() => {
-    if (userId) {
+    if (currentDriverID) {
       fetchUserData();
     }
   }, []);
   useEffect(() => {
-    if (drowsinessState === "Awake") {
+    if (drowsinessState === "awake") {
       setDrowsinessImage(require('../assets/emoji/Awake.png'));
-    } else if (drowsinessState === "Break") {
+    } else if (drowsinessState === "break") {
       setDrowsinessImage(require('../assets/emoji/Break.png'));
-    } else if (drowsinessState === "Drowsy") {
+    } else if (drowsinessState === "drowsy") {
       setDrowsinessImage(require('../assets/emoji/Drowsy.png'));
-    } else if (drowsinessState === "ASleep") {
+    } else if (drowsinessState === "asleep") {
       setDrowsinessImage(require('../assets/emoji/Asleep.png'));
     }
   }, [drowsinessState]);
@@ -119,6 +126,10 @@ export default function UserProfile({ navigation }) {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
+        <View style={styles.header}>
+            <FontAwesome6 name="drivers-license" size={27} color={colors.primary} />
+            <Text style={styles.title}>Current Driver</Text>
+        </View>
         <View style={styles.profileContainer}>
           <View style={styles.imageContainer}>
             {image ? (
@@ -249,6 +260,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    backgroundColor: colors.background_secondary,
+    width:width,
+  },
+  title: {
+    fontSize: 25,
+    marginLeft: 15,
+    fontWeight: 'bold',
+    color: colors.primary,
   },
   backgroundImage: {
     width: width,

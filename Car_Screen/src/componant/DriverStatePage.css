@@ -1,0 +1,90 @@
+.driver-state-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 600px;
+  width: 1400px;
+  background: #111;
+  border-radius: 12px;
+  padding: 40px;
+  margin-top: 20px;
+  margin-left: 8%;
+}
+
+.driver-message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  text-align: left;  
+}
+
+.driver-status-label {
+  font-size: 30px;
+  font-weight: bold;
+  color: #A16455;
+  margin-bottom: 25px;
+  padding-bottom: 25px;
+}
+
+
+.awake-msg {
+  color: #0056b3;
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.yawning-msg {
+  color: #E3912C;
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.sleeping-msg {
+  color: #b30000;
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.take-break-msg {
+  color: #0056b3;
+  font-weight: bold;
+  font-size: 24px;
+}
+
+.image-with-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 40px; 
+  margin-bottom: 15px;
+  margin-top: 40px;
+}
+
+.state-image-icon {
+  width: 420px;
+  height: 420px;
+  margin-bottom: 0px;
+  
+}
+.state-label {
+  font-size: 70px;
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+  font-weight: bold;
+  color: white;
+  letter-spacing: 4px;
+  text-transform: capitalize;
+  margin-top: 0px;
+}
+
+.driver-message span {
+  font-size: 22px;
+  color: #0056b3;
+}
+
+.driver-message p {
+  margin: 10px 0;
+  font-size: 22px;
+  line-height: 1.5;
+  
+}

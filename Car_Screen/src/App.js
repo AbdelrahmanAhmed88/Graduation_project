@@ -8,6 +8,7 @@ import UserProfile from "./componant/UserProfile";
 import ShowAllUsers from "./componant/ShowAllUsers";
 import CurrentUser from "./componant/CurrentUser";
 import ChangeAdminInfo from "./componant/ChangeAdminInfo";
+import DriverStatePage from "./componant/DriverStatePage";
 import { DrivingProvider } from "./componant/DrivingContext";
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
      <Route path="/Firsttimelogin2/Firsttimelogin3/HomePage/CurrentUser" element={<CurrentUser />} />
      <Route path="/Firsttimelogin2/Firsttimelogin3/HomePage/ShowAllUsers" element={<ShowAllUsers />} />
      <Route path="/Firsttimelogin2/Firsttimelogin3/HomePage/ChangeAdminInfo" element={<ChangeAdminInfo />} />
+     <Route path="/Firsttimelogin2/Firsttimelogin3/HomePage/DriverState" element={<DriverStatePage />}/>
     </Routes>
       
     </Router>

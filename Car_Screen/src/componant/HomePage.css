@@ -100,10 +100,12 @@
 }
 
 .profilee-image {
-  width: 200px; /*  زيادة حجم الصورة */
+  width: 200px; 
   height: 200px;
   border-radius: 50%;
   position: absolute;
+  object-fit: cover;  
+  object-position: center; 
 }
 
 /*  تكبير الإشعارات */

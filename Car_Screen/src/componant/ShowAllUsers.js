@@ -99,10 +99,10 @@ export default function ShowAllUsers() {
                 <span className="info-value">{selectedUser.name}</span>
               </div>
 
-              <div className="info-row">
+              {/* <div className="info-row">
                 <span className="info-label">NFC ID</span>
                 <span className="info-value">{selectedUser.nfc_id}</span>
-              </div>
+              </div> */}
 
               <div className="info-row">
                 <span className="info-label">Speed Limit</span>
