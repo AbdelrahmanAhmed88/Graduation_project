@@ -33,7 +33,7 @@ const vehicleSchema = new mongoose.Schema({
       user_id: { type: String, required: true }
     }
   ],
-  
+  updated:{type: Boolean, default: false}
   
 });
 

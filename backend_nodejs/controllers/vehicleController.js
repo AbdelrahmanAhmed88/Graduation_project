@@ -65,9 +65,10 @@ exports.addUserToVehicle = async (req, res) => {
         }
 
         await VEHICLE.updateOne(
-            { vehicle_id },
-            { $push: { users: { name, user_id } } }
-        );
+        { vehicle_id },
+        {$push: { users: { name, user_id } },
+        $set: { updated: true } }
+);
 
         return res.status(200).json({ success: true, message: "User added successfully" });
     } catch (error) {
@@ -80,11 +81,13 @@ exports.deleteUserFromVehicle = async (req, res) => {
   
     try {
       const result = await VEHICLE.findOneAndUpdate(
-        { vehicle_id: vehicleId },
-        { $pull: { users: { user_id: userId } } },
-        { new: true } // return the updated document
-      );
-  
+    { vehicle_id: vehicleId },
+    {
+        $pull: { users: { user_id: userId } },
+        $set: { updated: true }
+    },
+    { new: true }
+);
       if (!result) {
         return res.status(404).json({ success: false, message: "Vehicle not found" });
       }
