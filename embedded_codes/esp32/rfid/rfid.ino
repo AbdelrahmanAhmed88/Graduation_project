@@ -62,6 +62,10 @@ void loop() {
       Serial.print("cexit!");
       wait_response = false;
     }
+    if (stmCmd == "S") {
+      Serial.print("cstart!");
+      // wait_response = false;
+    }
   }
 
   // NFC scanning
