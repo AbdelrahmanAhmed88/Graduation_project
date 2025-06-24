@@ -1,7 +1,6 @@
 import os
 import requests
 
-import requests
 
 def get_users_for_car(car_id):
     """
@@ -55,15 +54,14 @@ def download_user_image(car_id, user_id):
 
 # Main function to handle the process
 def download_images_for_car(carID):
-    users = get_users_for_car(carID)
-
-    if users:
-        # Download images for each user in the car
-        for userID in users:
-            print(f"Downloading images for user {userID} in car {carID}...")
-            download_user_image(carID, userID)
-    else:
-        print(f"No users found for carID {carID}")
+        users = get_users_for_car(carID)
+        if users:
+            # Download images for each user in the car
+            for userID in users:
+                print(f"Downloading images for user {userID} in car {carID}...")
+                download_user_image(carID, userID)
+        else:
+            print(f"No users found for carID {carID}")
 
 # # Example usage
 # download_images_for_car("5YJ3E1EA7HF000314")

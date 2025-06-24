@@ -1,14 +1,5 @@
 const WebSocket = require('ws');
-const http = require('http');
-const fs = require('fs');
 
-const server = http.createServer((req, res) => {
-  const html = fs.readFileSync('index.html');
-  res.writeHead(200, { 'Content-Type': 'text/html' });
-  res.end(html);
-});
-
-const WebSocket = require('ws');
 const wss = new WebSocket.Server({ port: 8080 });
 
 let browserClient = null;
@@ -56,7 +47,4 @@ wss.on('connection', (ws) => {
   });
 });
 
-
-server.listen(8080, () => {
-  console.log('Server running on http://localhost:8080');
-});
+console.log('WebSocket server running on ws://localhost:8080');

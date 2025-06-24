@@ -10,7 +10,15 @@ class VehicleStateHandler(FileSystemEventHandler):
     def __init__(self, callback):
         super().__init__()
         self.callback = callback
-        self.last_state = None  # Store previous state
+        self.last_state = self._load_state()  # Store previous state
+
+    def _load_state(self):
+        try:
+            with open(STATES_FILE, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"[Watcher Init] Could not read initial state: {e}")
+            return None
 
     def on_modified(self, event):
         if event.src_path == STATES_FILE:

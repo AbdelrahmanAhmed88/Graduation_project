@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 import websocket
 import threading
 import json
@@ -7,9 +8,12 @@ class ScreenWebSocketClient:
         self.uri = uri
         self.ws = None
         self.thread = None
+        self.on_message_external = None
 
     def on_message(self, ws, message):
-        print("Received from Screen:", message)
+        # print("Received from Screen:", message)
+        if self.on_message_external:
+            self.on_message_external(message)
 
     def on_error(self, ws, error):
         print("Error:", error)
@@ -19,7 +23,7 @@ class ScreenWebSocketClient:
 
     def on_open(self, ws):
         print("Connected to Screen")
-        # ws.send("python-client")
+        ws.send("python")
 
     def connect(self):
         self.ws = websocket.WebSocketApp(
@@ -33,11 +37,13 @@ class ScreenWebSocketClient:
         self.thread.daemon = True
         self.thread.start()
 
-    def display_message(self, message_type, message):
+
+    def display_message(self, message_type, message, notification = NULL):
         if self.ws and self.ws.sock and self.ws.sock.connected:
             data = {
                 "type": message_type,
-                "message": message
+                "message": message,
+                "notification": notification
             }
             self.ws.send(json.dumps(data))
         else:

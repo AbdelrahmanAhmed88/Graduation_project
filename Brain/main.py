@@ -1,12 +1,14 @@
 from serial_reader.reader import SerialReader
 from Models.faceCheckModelExec import face_check, store_encoding
 from Models.drowsiness_distraction_ModelExec import DrowsinessDistractionDetectionexec, stop_drowsiness_distraction_detection
-from carla_communication.carla_interface import update_drowsiness_mode, update_speed_limit
+from carla_communication.carla_interface import update_drowsiness_mode, update_speed_limit ,update_engine_on_state
 import subprocess
 from config import vehicle_config
 from config.driver_Data import session
 import webbrowser
 import time
+import json
+import requests
 
 #watcher for json file 
 from carla_communication.vehicle_state_watcher import start_watching
@@ -20,6 +22,7 @@ vehicle_client.connect()
 
 screen_client = ScreenWebSocketClient()
 screen_client.connect()
+
 time.sleep(1)
 
 
@@ -47,16 +50,48 @@ def my_callback(userID):
     else:
         reader.send("N")
 
+#callback function for actions from screen
+def screen_on_message_callback(message):
+    try:
+        data = json.loads(message)
+    except json.JSONDecodeError:
+        print("Invalid JSON from screen.")
+        return
+
+    msg_type = data.get("type")
+    msg_content = data.get("message")
+
+    if msg_type == "DROWSINESS_STATE" :
+        if msg_content == "AWAKE":
+            print("Driver state set to 'Awake'. Resetting drowsiness-related flags.")
+            reset_drowsiness_flags()
+
+
+screen_client.on_message_external = screen_on_message_callback
+
 # Global flags
 is_drowsy = False
 is_distracted = False
-is_yawning = False
 need_break = False
 
+is_yawning = False
 yawn_num = 0
+last_yawn_time = 0
+
+def reset_drowsiness_flags():
+    global is_drowsy, is_distracted, is_yawning, yawn_num, last_yawn_time
+    is_drowsy = False
+    is_distracted = False
+    is_yawning = False
+    yawn_num = 0
+    last_yawn_time = 0
+    session.updateDriverStates("Asleep","Focused")
+    update_drowsiness_mode(False)
 
 def DDD_callback(message):
-    global is_drowsy, is_distracted, is_yawning ,yawn_num
+    global is_drowsy, is_distracted, is_yawning ,yawn_num, last_yawn_time
+
+    current_time = time.time()
 
     if "DROWSINESS" in message:
         if not is_drowsy:
@@ -66,27 +101,28 @@ def DDD_callback(message):
             screen_client.display_message("DROWSINESS_STATE", "Asleep")
             vehicle_client.send_message("Drowsiness detected. Please check on the driver to ensure they are okay.")
             session.updateDriverStates("Asleep","Focused")
+            # stop_drowsiness_distraction_detection()
             print("Drowsiness Action start!")
-    elif "DISTRACTION" in message:
-        if not is_distracted:
-            is_distracted = True
-            print("🚨 Distraction Alert!")
+    # elif "DISTRACTION" in message:
+    #     if not is_distracted:
+    #         is_distracted = True
+    #         print("🚨 Distraction Alert!")
     elif "YAWNING" in message:
-        if not is_yawning:
-            if(yawn_num == 2):
-                is_yawning = True
-                screen_client.display_message("DROWSINESS_STATE", "BREAK")
-            else:
-                yawn_num += 1
-                screen_client.display_message("DROWSINESS_STATE", "DROWSY")
-                vehicle_client.send_message("The driver seems drowsy. Please make sure they're safe and alert.")
-                session.updateDriverStates("Drowsy","Focused")
-                print("Yawning Alert!")
+        if (current_time - last_yawn_time) >= 3:  # Check 3-second cooldown
+            last_yawn_time = current_time  # Update last yawn time
+
+            if not is_yawning:
+                if yawn_num == 2:
+                    is_yawning = True
+                    screen_client.display_message("DROWSINESS_STATE", "BREAK")
+                else:
+                    yawn_num += 1
+                    screen_client.display_message("DROWSINESS_STATE", "DROWSY", "Feeling tired? It's okay to take a short break and refresh.")
+                    vehicle_client.send_message("The driver seems drowsy. Please make sure they're safe and alert.")
+                    session.updateDriverStates("Drowsy", "Focused")
+                    print("Yawning Alert!")
     elif "NORMAL" in message or "FOCUSED" in message or "AWAKE" in message:
-        # Reset all flags when driver returns to normal state
-        is_drowsy = False
-        is_distracted = False
-        is_yawning = False
+        reset_drowsiness_flags()
         screen_client.display_message("DROWSINESS_STATE", "Awake")
         print("Driver state normal. Resetting alerts.")
 
@@ -159,8 +195,21 @@ def handle_nfc_id(nfc_id):
         data = validate_nfc(nfc_id,vehicle_config.VIN)
         if(data):
             reader.send("O")
-            download_images_for_car(vehicle_config.VIN)
-            store_encoding()
+            api_url = f"http://localhost:5000/api/vehicles/{vehicle_config.VIN}"
+            response = requests.get(api_url)
+            
+            response.raise_for_status()  # This will throw an error if the status code is not 2xx
+
+            data = response.json()
+
+            usersUpdated = data['vehicle']['updated']
+
+            if(usersUpdated):
+                download_images_for_car(vehicle_config.VIN)
+                store_encoding()
+            else:
+                print("No users update")
+
             face_check(my_callback)
         else:
             reader.send("N")
@@ -169,11 +218,17 @@ def handle_nfc_id(nfc_id):
 # Callback function to handle commands (when 'c' is received)
 def handle_command(command):
     if(command == 'exit'):
+        screen_client.display_message("NOTIFICATION", "Goodbye! Don’t forget your phone")
         vehicle_client.send_message("Goodbye! Don’t forget your phone")
-        # print("Don't Forget your phone :D")
-        vehicle_client.close()
-    # Add your command handling logic here
-    # Example: Control actuators, send responses, etc.
+        update_engine_on_state(False)
+        stop_drowsiness_distraction_detection()
+        # vehicle_client.close()
+    elif(command == 'start'):
+        update_engine_on_state(True)
+        reset_drowsiness_flags()
+        vehicle_client.send_message("Engine started.")
+        screen_client.display_message("NOTIFICATION", "Engine started.")
+        print("Engine started.")
 
 def on_vehicle_state_change(data, changes):
     print(f"[MAIN] vehicle_state.json changed:")
@@ -189,7 +244,6 @@ def on_vehicle_state_change(data, changes):
         DrowsinessDistractionDetectionexec(DDD_callback)
     if 'engine_on' in changes and data.get("engine_on", 0) == False:
         print("Drwosiness and Distraction Detection stop")
-        stop_drowsiness_distraction_detection()
 
 
 

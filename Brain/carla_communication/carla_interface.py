@@ -2,7 +2,7 @@ import json
 import threading
 import os
 
-STATES_FILE = r"C:\Bedo\Graduation project\Carla\Carla 0.9.11\vehicle_state.json"
+STATES_FILE = r"C:\Bedo\github_repo\Graduation_project\Carla 0.9.11\vehicle_state.json"
 _lock = threading.Lock()
 
 def read_state():
@@ -25,6 +25,11 @@ def write_state(data:dict):
 def update_drowsiness_mode(mode: bool):
     state = read_state()
     state["drowsiness_mode"] = mode
+    write_state(state)
+
+def update_engine_on_state(mode: bool):
+    state = read_state()
+    state["engine_on"] = mode
     write_state(state)
 
 def update_speed_limit(new_limit: int):
