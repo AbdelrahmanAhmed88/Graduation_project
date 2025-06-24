@@ -13,7 +13,7 @@ export default function UserProfile() {
   const storedVehicleID = sessionStorage.getItem("vehicleID");
   const [formData, setFormData] = useState({
     name: "",
-    nfc_id: "",
+    // nfc_id: "",
     speed_limit: false, 
     max_speed: "",
     aggressive_mode: false, 
@@ -39,7 +39,7 @@ export default function UserProfile() {
   };
 
   const handleSaveUser = async () => {
-    if (formData.name && formData.nfc_id && image) {
+    if (formData.name && image) {
       // Generate a unique user ID
       const userID = generateUserID();
   
@@ -96,7 +96,7 @@ export default function UserProfile() {
             // Reset the form
             setFormData({
               name: "",
-              nfc_id: "",
+              // nfc_id: "",
               speed_limit: false,
               max_speed: "",
               aggressive_mode: false,
@@ -148,7 +148,7 @@ export default function UserProfile() {
 
         <div className="profile-right">
           <div className="info-container">
-            <div className="info-row">
+            {/* <div className="info-row">
               <span className="info-label">nfc_id ID</span>
               <input
                 type="text"
@@ -158,7 +158,7 @@ export default function UserProfile() {
                 className="info-input"
                 placeholder="Enter nfc_id ID"
               />
-            </div>
+            </div> */}
 
             <div className="info-row">
               <span className="info-label">Speed Limit</span>

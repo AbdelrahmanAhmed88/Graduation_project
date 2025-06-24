@@ -154,7 +154,7 @@ exports.getVehicleUsers = async (req, res) => {
   }  
 }
 exports.loginAdmin = async (req, res) => {
-    console.log(req.body);
+    // console.log(req.body);
     const { vehicle_id, email, password } = req.body;
     if (!email || !password ||!vehicle_id) {
       return res.status(404).json({ msg: "Please enter all fields" });
@@ -218,7 +218,7 @@ exports.getCurrentDriver = async (req, res) => {
 exports.setCurrentDriver = async (req, res) => {
     try {
         const { vehicle_id } = req.params;
-        const { user_id, drowsiness_state, focus_state } = req.body;
+        const { user_id, start_time, drowsiness_state, focus_state } = req.body;
         const vehicle = await VEHICLE.findOne({ vehicle_id: vehicle_id });
 
         if (!vehicle) {
@@ -227,7 +227,7 @@ exports.setCurrentDriver = async (req, res) => {
 
         vehicle.currentDriver = {
             user_id,
-            // start_time,
+            start_time,
             drowsiness_state,
             focus_state
         };
@@ -250,6 +250,7 @@ exports.deleteCurrentDriver = async (req, res) => {
 
         vehicle.currentDriver = {
             user_id: null,
+            start_time: null,
             drowsiness_state: null,
             focus_state: null
         };

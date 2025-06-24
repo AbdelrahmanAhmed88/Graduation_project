@@ -1,21 +1,20 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
 import "./HomePage.css";
-import Spline from '@splinetool/react-spline';
+import Spline from "@splinetool/react-spline";
 
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
-import { Suspense } from "react";
 
-// Images
+// Images and assets
 import awake from "./image-home/awake.png";
 import yawning from "./image-home/yawning-face.png";
 import sleeping from "./image-home/sleeping-face.png";
 import takeBreakImage from "./image-home/takeBreakImage.png";
-import car from "./image-home/car.png";
 import ellipse from "./image-home/Ellipse 1.png";
 import alarm from "../assets/sounds/alarm.mp3";
+import master_profile_image from "../assets/images/master_profile_image.png";
 
 import Sidebar from "./Sidebar";
 
@@ -29,20 +28,18 @@ export default function HomePage() {
   });
 
   const [notification, setNotification] = useState("No Notifications");
-  const [showBreakImage, setShowBreakImage] = useState(false);
   const [lightsState, setLightsState] = useState("OFF");
   const [lockState, setLockState] = useState("LOCKED");
   const [profileImage, setProfileImage] = useState(null);
   const [showWakePrompt, setShowWakePrompt] = useState(false);
   const [socketRef, setSocketRef] = useState(null);
+  const [userID, setUserID] = useState(() => sessionStorage.getItem("userID"));
+  const [isIdentifying, setIsIdentifying] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const user_id = params.get("u");
     const vehicle_id = params.get("v");
-
     if (vehicle_id) sessionStorage.setItem("vehicleID", vehicle_id);
-    if (user_id) sessionStorage.setItem("userID", user_id);
 
     const savedState = sessionStorage.getItem("DROWSINESS_STATE");
     if (savedState) setDriverState(savedState);
@@ -54,20 +51,29 @@ export default function HomePage() {
   useEffect(() => {
     const userID = sessionStorage.getItem("userID");
     if (userID) {
-      fetch(`http://localhost:5000/api/users/${userID}`)
-        .then((response) => response.json())
-        .then((data) => {
-          setCurrentDriver(data.user);
-          if (data.user.image) {
-            const imageUrl = `http://localhost:5000/users/images/${data.user.image}`;
-            setProfileImage(imageUrl);
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
+      if (userID === "Master") {
+        setCurrentDriver({
+          name: "Master",
+          speed_limit: false,
+          max_speed: 220,
         });
+        setProfileImage(master_profile_image);
+      } else {
+        fetch(`http://localhost:5000/api/users/${userID}`)
+          .then((response) => response.json())
+          .then((data) => {
+            setCurrentDriver(data.user);
+            if (data.user.image) {
+              const imageUrl = `http://localhost:5000/users/images/${data.user.image}`;
+              setProfileImage(imageUrl);
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching user data:", error);
+          });
+      }
     }
-  }, []);
+  }, [userID]);
 
   let alarmAudio;
 
@@ -84,12 +90,12 @@ export default function HomePage() {
   const stopAlarm = () => {
     if (alarmAudio) {
       alarmAudio.pause();
-      alarmAudio.currentTime = 0; // rewind to start
+      alarmAudio.currentTime = 0;
     }
   };
 
   useEffect(() => {
-  if (driverState === "ASLEEP") {
+    if (driverState === "ASLEEP") {
       playAlarm();
       setShowWakePrompt(true);
     }
@@ -110,6 +116,17 @@ export default function HomePage() {
         if (!msg.type || !msg.message) return;
 
         switch (msg.type) {
+          case "IDENTIFYING":
+            setIsIdentifying(true);
+            break;
+
+          case "USERCREDENTIALS":
+            const user_id = msg.message;
+            sessionStorage.setItem("userID", user_id);
+            setUserID(user_id);
+            setIsIdentifying(false);
+            break;
+
           case "DROWSINESS_STATE":
             const state = msg.message.toUpperCase();
             setDriverState(state);
@@ -120,10 +137,12 @@ export default function HomePage() {
               sessionStorage.setItem("last_notification", msg.notification);
             }
             break;
+
           case "NOTIFICATION":
             setNotification(`${msg.message}`);
             sessionStorage.setItem("last_notification", msg.message);
             break;
+
           default:
             setNotification(`ℹ️ ${msg.message}`);
         }
@@ -141,13 +160,8 @@ export default function HomePage() {
     };
   }, []);
 
-  const handleEmojiClick = () => {
-    navigate("DriverState");
-  };
-
-  const handleProfileClick = () => {
-    navigate("CurrentUser");
-  };
+  const handleEmojiClick = () => navigate("DriverState");
+  const handleProfileClick = () => navigate("CurrentUser");
 
   const getDriverImage = () => {
     switch (driverState) {
@@ -166,9 +180,7 @@ export default function HomePage() {
 
   const handleWakeUp = () => {
     if (socketRef && socketRef.readyState === WebSocket.OPEN) {
-      socketRef.send(
-        JSON.stringify({ type: "DROWSINESS_STATE", message: "AWAKE" })
-      );
+      socketRef.send(JSON.stringify({ type: "DROWSINESS_STATE", message: "AWAKE" }));
       setDriverState("AWAKE");
       sessionStorage.setItem("DROWSINESS_STATE", "AWAKE");
       stopAlarm();
@@ -182,58 +194,45 @@ export default function HomePage() {
       <primitive
         object={gltf.scene}
         scale={1.7}
-        position={[0, -5, 0]} 
+        position={[0, -5, 0]}
         rotation={[0, Math.PI, 0]}
       />
     );
   }
-  
 
   return (
     <div className="app-container">
       <Sidebar />
       <div className="homepage-container">
-      <div className="car-container">
-      <Canvas
-        style={{ height: "500px", width: "100%" }}
-        camera={{ position: [100, 10, 100], fov: 11 }} // adjust position to zoom out
-      >
-        <ambientLight />
-        <directionalLight position={[50, 50, 50]} />
-        <Suspense fallback={null}>
-          <CarModel />
-        </Suspense>
-        <OrbitControls enableZoom={false} enablePan={false} />
-      </Canvas>
-        <p className="status-text">Lights {lightsState}</p>
-        <p className="status-text">DOORS {lockState}</p>
-      </div>
-
+        <div className="car-container">
+          <Canvas
+            style={{ height: "500px", width: "100%" }}
+            camera={{ position: [100, 10, 100], fov: 11 }}
+          >
+            <ambientLight />
+            <directionalLight position={[50, 50, 50]} />
+            <Suspense fallback={null}>
+              <CarModel />
+            </Suspense>
+            <OrbitControls enableZoom={false} enablePan={false} />
+          </Canvas>
+          <p className="status-text">Lights {lightsState}</p>
+          <p className="status-text">DOORS {lockState}</p>
+        </div>
 
         <div className="driver-info">
           <div className="driver-details">
             <div className="status-box" onClick={handleEmojiClick}>
-              <img
-                src={getDriverImage()}
-                alt="Driver State"
-                className="emoji-image"
-              />
+              <img src={getDriverImage()} alt="Driver State" className="emoji-image" />
               <p className="status-text">
                 {driverState.charAt(0).toUpperCase() + driverState.slice(1)}
               </p>
             </div>
 
-            <div
-              className="profilee-image-container"
-              onClick={handleProfileClick}
-            >
+            <div className="profilee-image-container" onClick={handleProfileClick}>
               <img src={ellipse} alt="Frame" className="profilee-frame" />
               {profileImage ? (
-                <img
-                  src={profileImage}
-                  alt="Driver"
-                  className="profilee-image"
-                />
+                <img src={profileImage} alt="Driver" className="profilee-image" />
               ) : (
                 <p>No Image Available</p>
               )}
@@ -242,11 +241,7 @@ export default function HomePage() {
 
           <div className="notifications">
             <h3>Notifications</h3>
-            <div
-              className={`notification-item ${
-                driverState === "YAWNING" ? "warning" : ""
-              }`}
-            >
+            <div className={`notification-item ${driverState === "YAWNING" ? "warning" : ""}`}>
               {notification}
             </div>
           </div>
@@ -261,6 +256,15 @@ export default function HomePage() {
             <button className="confirm-button" onClick={handleWakeUp}>
               I'm Awake
             </button>
+          </div>
+        </div>
+      )}
+
+      {isIdentifying && (
+        <div className="loading-screen-overlay">
+          <div className="loading-modal">
+            <h2>Identifying user...</h2>
+            <p>Please wait while we identify the current driver.</p>
           </div>
         </div>
       )}

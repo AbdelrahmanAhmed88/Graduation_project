@@ -71,11 +71,12 @@ def update_user_data(user_id, new_data):
         return False
 
 
-def update_current_driver_data(user_id,drowsiness_state,focus_state):
+def update_current_driver_data(user_id,drowsiness_state,focus_state,start_time):
     url = f"{BASE_URL}/vehicles/{vehicle_config.VIN}/currentDriver"
 
     payload = {
             "user_id": user_id,
+            "start_time": start_time,
             "drowsiness_state": drowsiness_state,
             "focus_state": focus_state
     }
@@ -83,6 +84,22 @@ def update_current_driver_data(user_id,drowsiness_state,focus_state):
         response = requests.patch(url,json = payload)
         if response.status_code == 200:
             print(f"Current User data for vehicle ID {vehicle_config.VIN} updated successfully.")
+            return True
+        else:
+            print(f"Error updating current user data for vehicle ID {vehicle_config.VIN}: {response.status_code}")
+            return False
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error updating user data: {e}")
+        return False
+
+def reset_current_driver_server_data():
+    url = f"{BASE_URL}/vehicles/{vehicle_config.VIN}/currentDriver"
+
+    try:
+        response = requests.delete(url)
+        if response.status_code == 200:
+            print(f"Current User data for vehicle ID {vehicle_config.VIN} reset successfully.")
             return True
         else:
             print(f"Error updating current user data for vehicle ID {vehicle_config.VIN}: {response.status_code}")

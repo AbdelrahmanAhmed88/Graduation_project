@@ -1,6 +1,9 @@
 # driver_Data.py
 import time
-from api_client.backend_api import update_current_driver_data
+
+from sympy import N
+from sympy.parsing.sympy_parser import null
+from api_client.backend_api import update_current_driver_data , reset_current_driver_server_data
 
 class DriverSession:
     def __init__(self):
@@ -10,7 +13,9 @@ class DriverSession:
         self.max_speed = 0
         self.aggressive_mode = False
         self.drowsiness_mode = False
+        self.drowsiness_state = null
         self.focus_mode = False
+        self.focus_state = null
         self.start_time = 0
 
     def updateDriverData(self,user_data: dict):
@@ -23,10 +28,25 @@ class DriverSession:
         self.focus_mode = user_data["focus_mode"]
         self.start_time = time.time()
     
-    def updateDriverStates(self,drowsiness_state,focus_state):
-        self.drowsiness_mode = drowsiness_state
-        self.focus_mode = focus_state
-        update_current_driver_data(self.user_id,drowsiness_state,focus_state)
+    def updateDriverStates(self, drowsiness_state=None, focus_state=None):
+        if drowsiness_state is not None:
+            self.drowsiness_state = drowsiness_state
+
+        if focus_state is not None:
+            self.focus_state = focus_state
+
+        update_current_driver_data(
+            self.user_id,
+            self.start_time,
+            self.drowsiness_state,
+            self.focus_state
+        )
+
+
+    def resetDriverStates(self):
+        self.drowsiness_state = null
+        self.focus_state = null
+        reset_current_driver_server_data()
 
     def console_print(self):
         print("Driver Name: ", self.user_name)

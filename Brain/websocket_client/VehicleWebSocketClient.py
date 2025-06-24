@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 import websocket
 import json
 import threading
@@ -42,11 +43,14 @@ class VehicleWebSocketClient:
     def on_error(self, ws, error):
         print(f"WebSocket error: {error}")
 
-    def send_message(self, message_text):
+    def send_message(self, message_text,control_type = NULL,control_message= NULL):
+
         if self.connected and self.ws:
             msg = {
                 "vehicle_id": self.vehicle_id,
-                "message": message_text
+                "message": message_text,
+                "control_type": control_type,
+                "control_message": control_message
             }
             self.ws.send(json.dumps(msg))
         else:

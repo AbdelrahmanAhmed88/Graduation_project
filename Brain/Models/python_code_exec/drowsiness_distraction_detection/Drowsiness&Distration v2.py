@@ -143,6 +143,7 @@ while True:
                     distraction_start_time = time.time()
                 elif time.time() - distraction_start_time > WARNING_THRESHOLD:
                     # play_tone(300, 0.4)
+                    print("DISTRACTION DETECTED!")
                     cv2.putText(frame, f"WARNING: Distracted ({distraction_reason})", (30, 80),
                                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
             else:

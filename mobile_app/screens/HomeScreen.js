@@ -59,9 +59,7 @@ export default function HomeScreen({ navigation }) {
       const response = await axios.get(`http://${ip}:5000/api/vehicles/${vin}/currentDriver`);
       const userId = response.data.currentDriver.user_id;
       setCurrentDriverID(userId);
-      console.log(userId)
       if (userId) {
-        console.log(userId)
         const imageUrl = `http://${ip}:5000/users/images/${userId}.jpeg`;
         setImageUrl(imageUrl);
 
@@ -115,6 +113,10 @@ export default function HomeScreen({ navigation }) {
             trigger: null,
           });
           setNotification(msg.message);
+          if(msg.control_type === "update_current_user")
+          {
+            fetchCurrentDriverImage();
+          }
         } catch (error) {
           console.error('Failed to parse WebSocket message:', error.message);
         }

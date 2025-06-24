@@ -28,7 +28,7 @@ time.sleep(1)
 
 
 #apis
-from api_client.backend_api import validate_nfc, get_user_data, update_user_data
+from api_client.backend_api import validate_nfc, get_user_data, update_user_data, reset_current_driver_server_data
 from api_client.get_images import download_images_for_car  
 
 reader = None  # Global reader
@@ -77,19 +77,21 @@ need_break = False
 is_yawning = False
 yawn_num = 0
 last_yawn_time = 0
+last_distracted_time = 0
 
 def reset_drowsiness_flags():
-    global is_drowsy, is_distracted, is_yawning, yawn_num, last_yawn_time
+    global is_drowsy, is_distracted, is_yawning, yawn_num, last_yawn_time,last_distracted_time
     is_drowsy = False
     is_distracted = False
     is_yawning = False
     yawn_num = 0
     last_yawn_time = 0
-    session.updateDriverStates("Asleep","Focused")
+    last_distracted_time = 0
+    session.updateDriverStates("Awake","Focused")
     update_drowsiness_mode(False)
 
 def DDD_callback(message):
-    global is_drowsy, is_distracted, is_yawning ,yawn_num, last_yawn_time
+    global is_drowsy, is_distracted, is_yawning ,yawn_num, last_yawn_time ,last_distracted_time
 
     current_time = time.time()
 
@@ -103,10 +105,17 @@ def DDD_callback(message):
             session.updateDriverStates("Asleep","Focused")
             # stop_drowsiness_distraction_detection()
             print("Drowsiness Action start!")
-    # elif "DISTRACTION" in message:
-    #     if not is_distracted:
-    #         is_distracted = True
-    #         print("🚨 Distraction Alert!")
+    elif "DISTRACTION" in message:
+        if (current_time - last_distracted_time) >= 5:
+            is_distracted = False
+
+        if not is_distracted:
+            is_distracted = True
+            last_distracted_time = current_time  
+            session.updateDriverStates(focus_state="Distracted")
+            screen_client.display_message("You seem distracted — please pay attention.")
+            print("Distraction Alert!")
+
     elif "YAWNING" in message:
         if (current_time - last_yawn_time) >= 3:  # Check 3-second cooldown
             last_yawn_time = current_time  # Update last yawn time
@@ -119,7 +128,7 @@ def DDD_callback(message):
                     yawn_num += 1
                     screen_client.display_message("DROWSINESS_STATE", "DROWSY", "Feeling tired? It's okay to take a short break and refresh.")
                     vehicle_client.send_message("The driver seems drowsy. Please make sure they're safe and alert.")
-                    session.updateDriverStates("Drowsy", "Focused")
+                    session.updateDriverStates(drowsiness_state="Drowsy")
                     print("Yawning Alert!")
     elif "NORMAL" in message or "FOCUSED" in message or "AWAKE" in message:
         reset_drowsiness_flags()
@@ -141,47 +150,55 @@ def openFirstTimeScreen():
         print(f"Error opening the website: {e}")
 
 def auth(user_id, vehicle_id):
-    print(f"Opening website for user {user_id}")
-    url = f"http://localhost:3000/Firsttimelogin2/Firsttimelogin3/HomePage?u={user_id}&v={vehicle_id}"
-    
-    try:
-        # Use webbrowser to open the URL directly in the default browser
-        webbrowser.open(url)
-        vehicle_client.connect()
-        time.sleep(2)
-        screen_client.display_message("NOTIFICATION", f"Welcome {session.user_name}. You can now start the car.")
-        vehicle_client.send_message(f"Welcome {session.user_name}. You can now start the car.")
-        session.updateDriverStates("Awake","Focused")
+    print(f"updating Screen for user {user_id}")
+
+   
+    screen_client.display_message("USERCREDENTIALS",user_id)
+    screen_client.display_message("NOTIFICATION", f"Welcome {session.user_name}. You can now start the car.")
+    vehicle_client.send_message(f"Welcome {session.user_name}. You can now start the car.",control_type="update_current_user")
+    session.updateDriverStates("Awake","Focused")
+    # try:
+    #     # Use webbrowser to open the URL directly in the default browser
+    #     url = f"http://localhost:3000/Firsttimelogin2/Firsttimelogin3/HomePage?u={user_id}&v={vehicle_id}"
+    #     webbrowser.open(url)
+    #     time.sleep(2) 
+    #     screen_client.display_message("NOTIFICATION", f"Welcome {session.user_name}. You can now start the car.")
+    #     vehicle_client.send_message(f"Welcome {session.user_name}. You can now start the car.",control_type="update_current_user")
+    #     session.updateDriverStates("Awake","Focused")
         
-        # print("URL opened successfully")
-    except Exception as e:
-        print(f"Error opening the website: {e}")
+    #     # print("URL opened successfully")
+    # except Exception as e:
+    #     print(f"Error opening the website: {e}")
 
 def masterCardAccessHomepage():
-    print(f"Opening Homepage for mastercard")
-    url = f"http://localhost:3000/Firsttimelogin2/Firsttimelogin3/HomePage?v={vehicle_config.VIN}"
-    
-    try:
-        # Use webbrowser to open the URL directly in the default browser
-        webbrowser.open(url)
-        time.sleep(2)
-        screen_client.display_message("NOTIFICATION", "Vehicle Unlocked by Master Card.")
-        vehicle_client.send_message(f"Vehicle Unlocked by Master Card.")
-        # print("URL opened successfully")
-    except Exception as e:
-        print(f"Error opening the website: {e}")
+    if(vehicle_config.FIRST_START):
+        openFirstTimeScreen()
+    else:
+        print(f"Opening Homepage for mastercard")
+        url = f"http://localhost:3000/Firsttimelogin2/Firsttimelogin3/HomePage?v={vehicle_config.VIN}"
+        
+        try:
+            # Use webbrowser to open the URL directly in the default browser
+            webbrowser.open(url)
+            time.sleep(2)
+            screen_client.display_message("NOTIFICATION", "Vehicle Unlocked by Master Card.")
+            screen_client.display_message("USERCREDENTIALS","Master")
+            vehicle_client.send_message(f"Vehicle Unlocked by Master Card.")
+            # print("URL opened successfully")
+        except Exception as e:
+            print(f"Error opening the website: {e}")
 
 
 
 # Callback function to handle vehicle ID
 def handle_vehicle_id(vehicle_id):
-    print(f"🚗 Vehicle ID received: {vehicle_id}")
+    print(f"Vehicle ID received: {vehicle_id}")
     # You can add any custom logic here for the vehicle ID
     # Example: Send it to a backend API, update a database, etc.
 
 # Callback function to handle user signal (e.g., when 'u' is received)
 def handle_user_signal():
-    print("⚡ User signal received")
+    print("User signal received")
     # Add custom logic for when a user signal is received
     # Example: Trigger some action, like a user interface update or another system event
 
@@ -190,6 +207,9 @@ def handle_nfc_id(nfc_id):
     print(f"NFC ID received: {nfc_id}")
     
     if nfc_id in vehicle_config.MASTER_CARDS:
+        reader.send("O")
+        time.sleep(3)
+        reader.send("U")
         masterCardAccessHomepage()
     else:
         data = validate_nfc(nfc_id,vehicle_config.VIN)
@@ -209,7 +229,7 @@ def handle_nfc_id(nfc_id):
                 store_encoding()
             else:
                 print("No users update")
-
+            screen_client.display_message("USERCREDENTIALS","IDENTIFYING")
             face_check(my_callback)
         else:
             reader.send("N")
@@ -219,7 +239,8 @@ def handle_nfc_id(nfc_id):
 def handle_command(command):
     if(command == 'exit'):
         screen_client.display_message("NOTIFICATION", "Goodbye! Don’t forget your phone")
-        vehicle_client.send_message("Goodbye! Don’t forget your phone")
+        vehicle_client.send_message("Don’t forget your phone")
+        session.resetDriverStates()
         update_engine_on_state(False)
         stop_drowsiness_distraction_detection()
         # vehicle_client.close()
@@ -250,10 +271,11 @@ def on_vehicle_state_change(data, changes):
 
 # Main program execution
 def main():
-    if(vehicle_config.FIRST_START == True):
-        openFirstTimeScreen()
+    # if(vehicle_config.FIRST_START == True):
+    #     openFirstTimeScreen()
 
     start_watching(on_vehicle_state_change)
+    vehicle_client.connect()
     # Create a SerialReader instance
     global reader
     reader = SerialReader(port=vehicle_config.SERIAL_PORT, baudrate=vehicle_config.BAUD_RATE, delimiter=vehicle_config.DELIMITER)

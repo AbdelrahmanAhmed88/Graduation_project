@@ -38,7 +38,7 @@ class ScreenWebSocketClient:
         self.thread.start()
 
 
-    def display_message(self, message_type, message, notification = NULL):
+    def display_message(self, message_type, message=NULL, notification = NULL):
         if self.ws and self.ws.sock and self.ws.sock.connected:
             data = {
                 "type": message_type,
@@ -48,6 +48,7 @@ class ScreenWebSocketClient:
             self.ws.send(json.dumps(data))
         else:
             print("WebSocket not connected.")
+
 
     def close(self):
         if self.ws:

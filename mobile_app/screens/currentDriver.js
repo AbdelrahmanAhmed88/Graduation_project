@@ -23,6 +23,19 @@ import { BlurView } from 'expo-blur';
 
 const { height, width } = Dimensions.get('window');
 
+function formatDrivingDuration(startTime) {
+  const now = Date.now() / 1000; // current time in seconds
+  const duration = Math.floor(now - startTime); // total driving time in seconds
+
+  const hours = Math.floor(duration / 3600);
+  const minutes = Math.floor((duration % 3600) / 60);
+
+  if (hours > 0 && minutes > 0) return `${hours} hour(s) ${minutes} minute(s)`;
+  if (hours > 0) return `${hours} hour(s)`;
+  if (minutes > 0) return `${minutes} minute(s)`;
+  return `Just started driving`;
+}
+
 export default function UserProfile({ navigation }) {
   const { showAlert, hideAlert } = useAlert();
 
@@ -36,11 +49,18 @@ export default function UserProfile({ navigation }) {
   const [drowsiness, setDrowsiness] = useState('');
   const [drowsinessState, setDrowsinessState] = useState('');
   const [drowsinessImage , setDrowsinessImage] = useState('')
+  const [drowsinessText,setDrowsinessText] = useState('');
+  const [drowsinessTextColor,setDrowsinessTextColor] = useState('');
   const [focus, setFocus] = useState('');
+  const [focusState, setFocusState] = useState('');
+  const [focusImage, setFocusImage] = useState('');
+  const [focusText,setFocusText] = useState('');
+  const [focusTextColor,setFocusTextColor] = useState('');
   const [drivingScore, setDrivingScore] = useState(0);
   const [image, setImage] = useState('');
   const [scoreLottie, setScoreLottie] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [drivingDuration,setDrivingDuration] = useState("")
 
   const fetchUserData = async () => {
     try {
@@ -53,6 +73,8 @@ export default function UserProfile({ navigation }) {
       if(DriverStatus)
         {
           setDrowsinessState(DriverStatus.drowsiness_state.toLowerCase());
+          setFocusState(DriverStatus.focus_state.toLowerCase());
+          // setDrivingDuration(formatDrivingDuration(DriverStatus.start_time));
         }
 
       if (userData) {
@@ -98,15 +120,34 @@ export default function UserProfile({ navigation }) {
   useEffect(() => {
     if (drowsinessState === "awake") {
       setDrowsinessImage(require('../assets/emoji/Awake.png'));
+      setDrowsinessText('awake and alert');
+      setDrowsinessTextColor(colors.secondary);
     } else if (drowsinessState === "break") {
       setDrowsinessImage(require('../assets/emoji/Break.png'));
+      setDrowsinessText("Driver needs a break");
+      setDrowsinessTextColor(colors.warning);
     } else if (drowsinessState === "drowsy") {
       setDrowsinessImage(require('../assets/emoji/Drowsy.png'));
+      setDrowsinessText("Feeling drowsy — stay alert");
+      setDrowsinessTextColor(colors.warning);
     } else if (drowsinessState === "asleep") {
       setDrowsinessImage(require('../assets/emoji/Asleep.png'));
+      setDrowsinessText("asleep Immediate attention required!")
+      setDrowsinessTextColor(colors.danger);
     }
   }, [drowsinessState]);
   
+  useEffect(() =>{ 
+    if(focusState === "focused")
+    {
+      setFocusImage(require('../assets/driver_focus_state/focused.png'));
+    }
+    else if (focusState === "distracted")
+    {
+      setFocusImage(require('../assets/driver_focus_state/unfocused.png'));
+    }
+  },[focusState])
+
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -152,7 +193,7 @@ export default function UserProfile({ navigation }) {
         <View style={[styles.externalContainer, { height: 520 }]}>
           <View style={styles.infoContainer}>
             <Text style={styles.infoText}>Driving Duration</Text>
-            <Text style={styles.infoTextValue}>1 Hour</Text>
+            <Text style={styles.infoTextValue}>{drivingDuration}</Text>
           </View>
 
           <View style={styles.infoContainer}>
@@ -206,23 +247,29 @@ export default function UserProfile({ navigation }) {
               style={styles.drowsiness_container_image}
               resizeMode="contain"
             />
+            <Text style={styles.singleContainerText}>
+              <Text style={{color: colors.primary}}>Driver is </Text>
+              <Text style={[styles.drowsinessStatus, { color: drowsinessTextColor }]}>
+                {drowsinessText}
+              </Text>
+            </Text>
           </View>
         </View>
 
-        <View style={styles.singleContainers}>
+        <View style={{...styles.singleContainers,marginBottom: 100}}>
           <View style={styles.overlay}>
             <Text style={styles.containerMainText}>Distraction Mode</Text>
-            <View style={styles.scoreOuterCircle}>
-              {scoreLottie ? (
-                <LottieView
-                  source={scoreLottie}
-                  autoPlay
-                  loop
-                  style={styles.scoreInnerCircle}
-                />
-              ) : null}
-              <Text style={styles.scoreText}>{drivingScore}</Text>
-            </View>
+            <Image
+              source={focusImage}
+              style={styles.drowsiness_container_image}
+              resizeMode="contain"
+            />
+            <Text style={{...styles.singleContainerText,textAlign:'center',marginTop: 20}}>
+              <Text style={{color: colors.primary}}>Driver is </Text>
+              <Text style={[styles.drowsinessStatus, { color: focusState === "focused" ? colors.secondary : colors.danger }]}>
+                {focusState}
+            </Text>
+            </Text>
           </View>
         </View>
 
@@ -302,6 +349,8 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     width: width,
+    objectFit:'cover',
+    objectPosition:'top',
   },
   name: {
     fontSize: 25,
@@ -363,6 +412,11 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 20,
     marginBottom: 0,
+  },
+  singleContainerText:{
+    alignSelf:'center',
+    fontSize:20,
+    width:"70%",
   },
   scoreOuterCircle: {
     width: width,
