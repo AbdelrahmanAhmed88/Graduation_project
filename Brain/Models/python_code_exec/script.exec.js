@@ -30,7 +30,7 @@ async function storeEncoding() {
 
 // Model for detecting drowsiness
 async function drowsinessDistractionDetection() {
-    exec("python ./python_code_exec/drowsiness_distraction_detection/Drowsiness&Distration v2.py", (error, stdout, stderr) => {
+    exec("python ./python_code_exec/drowsiness_distraction_detection/drowsiness&emotion_v1.py", (error, stdout, stderr) => {
         if (error) {
           console.error(`Error: ${error.message}`);
           return;

@@ -16,6 +16,7 @@ class DriverSession:
         self.drowsiness_state = null
         self.focus_mode = False
         self.focus_state = null
+        self.emotion_state = null
         self.start_time = 0
 
     def updateDriverData(self,user_data: dict):
@@ -28,24 +29,32 @@ class DriverSession:
         self.focus_mode = user_data["focus_mode"]
         self.start_time = time.time()
     
-    def updateDriverStates(self, drowsiness_state=None, focus_state=None):
+    def updateDriverStates(self, drowsiness_state=None, focus_state=None,emotion_state=None):
+
         if drowsiness_state is not None:
             self.drowsiness_state = drowsiness_state
 
         if focus_state is not None:
             self.focus_state = focus_state
 
+        if emotion_state is not None:
+            self.emotion_state = emotion_state
+
+
+
         update_current_driver_data(
             self.user_id,
             self.start_time,
             self.drowsiness_state,
-            self.focus_state
+            self.focus_state,
+            self.emotion_state
         )
 
 
     def resetDriverStates(self):
         self.drowsiness_state = null
         self.focus_state = null
+        self.emotion_state = null
         reset_current_driver_server_data()
 
     def console_print(self):

@@ -156,11 +156,12 @@ exports.getVehicleUsers = async (req, res) => {
 exports.loginAdmin = async (req, res) => {
     // console.log(req.body);
     const { vehicle_id, email, password } = req.body;
+    const lowerCaseEmail = email.toLowerCase();
     if (!email || !password ||!vehicle_id) {
       return res.status(404).json({ msg: "Please enter all fields" });
     }
     try {
-      const vehicle = await VEHICLE.findOne({ 'vehicle_id' : vehicle_id , 'admin.email': email });
+      const vehicle = await VEHICLE.findOne({ 'vehicle_id' : vehicle_id , 'admin.email': lowerCaseEmail });
       if (!vehicle) {
         return res.status(404).json({ msg: "Vehicle does not exist" });
       }
@@ -218,7 +219,7 @@ exports.getCurrentDriver = async (req, res) => {
 exports.setCurrentDriver = async (req, res) => {
     try {
         const { vehicle_id } = req.params;
-        const { user_id, start_time, drowsiness_state, focus_state } = req.body;
+        const { user_id, start_time, drowsiness_state, focus_state,emotion_state } = req.body;
         const vehicle = await VEHICLE.findOne({ vehicle_id: vehicle_id });
 
         if (!vehicle) {
@@ -229,7 +230,8 @@ exports.setCurrentDriver = async (req, res) => {
             user_id,
             start_time,
             drowsiness_state,
-            focus_state
+            focus_state,
+            emotion_state
         };
         await vehicle.save();
         return res.status(200).json({ success: true, message: "Current driver set successfully" });

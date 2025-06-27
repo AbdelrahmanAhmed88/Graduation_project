@@ -1,7 +1,7 @@
 from serial_reader.reader import SerialReader
 from Models.faceCheckModelExec import face_check, store_encoding
 from Models.drowsiness_distraction_ModelExec import DrowsinessDistractionDetectionexec, stop_drowsiness_distraction_detection
-from carla_communication.carla_interface import update_drowsiness_mode, update_speed_limit ,update_engine_on_state
+from carla_communication.carla_interface import update_drowsiness_mode, update_speed_limit ,update_engine_on_state,reset_driver_score,update_doors_locked_state
 import subprocess
 from config import vehicle_config
 from config.driver_Data import session
@@ -65,6 +65,15 @@ def screen_on_message_callback(message):
         if msg_content == "AWAKE":
             print("Driver state set to 'Awake'. Resetting drowsiness-related flags.")
             reset_drowsiness_flags()
+    if msg_type == "LOCK_STATE" :
+        if msg_content == "UNLOCKED":
+            reader.send("U")
+            update_doors_locked_state(False)
+        else:
+            reader.send("L")
+            update_doors_locked_state(True)
+
+
 
 
 screen_client.on_message_external = screen_on_message_callback
@@ -134,6 +143,21 @@ def DDD_callback(message):
         reset_drowsiness_flags()
         screen_client.display_message("DROWSINESS_STATE", "Awake")
         print("Driver state normal. Resetting alerts.")
+    
+    #Emotions part
+    elif message in ['Angry', 'Fear', 'Happy', 'Neutral', 'Sad']:
+        if message == 'Angry':
+            screen_client.display_message("EMOTIONS_STATE", "ANGRY", "Feeling tense? Let's take a few deep breaths together. Safe driving is the best kind of driving.")
+        elif message == 'Fear':
+            screen_client.display_message("EMOTIONS_STATE", "FEAR", "Everything's okay. Drive steady—you're in control. We're here with you.")
+        elif message == 'Happy':
+            screen_client.display_message("EMOTIONS_STATE", "HAPPY","Love the good vibes! Keep smiling and drive safe.")
+        elif message == 'Neutral':
+            screen_client.display_message("EMOTIONS_STATE", "NEUTRAL","Smooth and steady. You're doing great—let's keep it that way.")
+        elif message == 'Sad':
+            screen_client.display_message("EMOTIONS_STATE", "SAD", "Tough moment? You're not alone. Let's focus on the road—better times ahead.")
+        else:
+            print("Unknown emotion")
 
 
 
@@ -233,7 +257,6 @@ def handle_nfc_id(nfc_id):
             face_check(my_callback)
         else:
             reader.send("N")
-    #print(data["nfc"]["status"])
 
 # Callback function to handle commands (when 'c' is received)
 def handle_command(command):
@@ -243,6 +266,7 @@ def handle_command(command):
         session.resetDriverStates()
         update_engine_on_state(False)
         stop_drowsiness_distraction_detection()
+        reset_driver_score()
         # vehicle_client.close()
     elif(command == 'start'):
         update_engine_on_state(True)

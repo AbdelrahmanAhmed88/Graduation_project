@@ -24,6 +24,7 @@ const vehicleSchema = new mongoose.Schema({
     start_time: { type: Number, required: false ,default: null },
     drowsiness_state: { type: String, required: false ,default: null },
     focus_state: { type: String, required: false ,default: null },
+    emotion_state: { type: String, required: false ,default: null},
   },
 
   users: [

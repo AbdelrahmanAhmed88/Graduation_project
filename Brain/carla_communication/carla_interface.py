@@ -32,6 +32,16 @@ def update_engine_on_state(mode: bool):
     state["engine_on"] = mode
     write_state(state)
 
+def update_doors_locked_state(mode: bool):
+    state = read_state()
+    state["doors_locked"] = mode
+    write_state(state)
+
+def reset_driver_score():
+    state = read_state()
+    state["driving_score"] = 10
+    write_state(state)
+
 def update_speed_limit(new_limit: int):
     state = read_state()
     state["speed_limit"] = new_limit

@@ -2,7 +2,6 @@ import React, { useContext, useState, useEffect, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
 import "./HomePage.css";
-import Spline from "@splinetool/react-spline";
 
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
@@ -29,7 +28,7 @@ export default function HomePage() {
 
   const [notification, setNotification] = useState("No Notifications");
   const [lightsState, setLightsState] = useState("OFF");
-  const [lockState, setLockState] = useState("LOCKED");
+  const [lockState, setLockState] = useState("UNLOCKED");
   const [profileImage, setProfileImage] = useState(null);
   const [showWakePrompt, setShowWakePrompt] = useState(false);
   const [socketRef, setSocketRef] = useState(null);
@@ -114,18 +113,22 @@ export default function HomePage() {
       try {
         const msg = JSON.parse(event.data);
         if (!msg.type || !msg.message) return;
-
+        console.log(msg);
         switch (msg.type) {
-          case "IDENTIFYING":
-            setIsIdentifying(true);
-            break;
-
           case "USERCREDENTIALS":
-            const user_id = msg.message;
-            sessionStorage.setItem("userID", user_id);
-            setUserID(user_id);
-            setIsIdentifying(false);
-            break;
+            if(msg.message === "IDENTIFYING")
+            {
+              setIsIdentifying(true);
+              break;
+            }
+            else
+            {
+              const user_id = msg.message;
+              sessionStorage.setItem("userID", user_id);
+              setUserID(user_id);
+              setIsIdentifying(false);
+              break;
+            }
 
           case "DROWSINESS_STATE":
             const state = msg.message.toUpperCase();
@@ -137,6 +140,16 @@ export default function HomePage() {
               sessionStorage.setItem("last_notification", msg.notification);
             }
             break;
+          
+          case "EMOTIONS_STATE":
+            // console.log(msg)
+            const emotion = msg.message;
+            if (msg.notification) {
+              setNotification(`${msg.notification}`);
+              sessionStorage.setItem("last_notification", msg.notification);
+            }
+            break;
+
 
           case "NOTIFICATION":
             setNotification(`${msg.message}`);
@@ -178,12 +191,24 @@ export default function HomePage() {
     }
   };
 
+  const handleLockAndUnlockClick = () => {
+    if (socketRef && socketRef.readyState === WebSocket.OPEN) {
+      if (lockState === "LOCKED") {
+        setLockState("UNLOCKED");
+        socketRef.send(JSON.stringify({ type: "LOCK_STATE", message: "UNLOCKED" }));
+      } else {
+        setLockState("LOCKED");
+        socketRef.send(JSON.stringify({ type: "LOCK_STATE", message: "LOCKED" }));
+      }
+    }
+  };
+
   const handleWakeUp = () => {
     if (socketRef && socketRef.readyState === WebSocket.OPEN) {
+      stopAlarm();
       socketRef.send(JSON.stringify({ type: "DROWSINESS_STATE", message: "AWAKE" }));
       setDriverState("AWAKE");
       sessionStorage.setItem("DROWSINESS_STATE", "AWAKE");
-      stopAlarm();
       setShowWakePrompt(false);
     }
   };
@@ -202,7 +227,10 @@ export default function HomePage() {
 
   return (
     <div className="app-container">
-      <Sidebar />
+      <Sidebar 
+        lockState={lockState} 
+        handleLockAndUnlockClick={handleLockAndUnlockClick} 
+      />
       <div className="homepage-container">
         <div className="car-container">
           <Canvas

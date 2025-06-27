@@ -10,7 +10,7 @@ import {
   TouchableOpacity
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback ,useRef } from 'react';
 import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import ip from '../connections/ip';
@@ -30,14 +30,19 @@ function formatDrivingDuration(startTime) {
   const hours = Math.floor(duration / 3600);
   const minutes = Math.floor((duration % 3600) / 60);
 
-  if (hours > 0 && minutes > 0) return `${hours} hour(s) ${minutes} minute(s)`;
+  if (hours > 0 && minutes > 0) return `${hours} hour(s)     ${minutes} minute(s)`;
   if (hours > 0) return `${hours} hour(s)`;
   if (minutes > 0) return `${minutes} minute(s)`;
-  return `Just started driving`;
+  return `Just started`;
 }
 
 export default function UserProfile({ navigation }) {
   const { showAlert, hideAlert } = useAlert();
+
+  const scrollViewRef = useRef(null);
+  const drowsinessRef = useRef(null);
+  const distractionRef = useRef(null);
+  const emotionRef = useRef(null);
 
   const route = useRoute();
   const { vin, currentDriverID } = route.params || {};
@@ -56,6 +61,11 @@ export default function UserProfile({ navigation }) {
   const [focusImage, setFocusImage] = useState('');
   const [focusText,setFocusText] = useState('');
   const [focusTextColor,setFocusTextColor] = useState('');
+  const [emotionState, setEmotionState] = useState('neutral');
+  const [emotionStateText,setEmotionStateText] = useState('');
+  const [emotionStateTextColor,setEmotionStateTextColor] = useState('');
+  const [emotionStateImage,setEmotionStateImage] = useState('');
+  const [emotionContainerColor,setEmotionContainerColor] = useState('');
   const [drivingScore, setDrivingScore] = useState(0);
   const [image, setImage] = useState('');
   const [scoreLottie, setScoreLottie] = useState('');
@@ -74,7 +84,7 @@ export default function UserProfile({ navigation }) {
         {
           setDrowsinessState(DriverStatus.drowsiness_state.toLowerCase());
           setFocusState(DriverStatus.focus_state.toLowerCase());
-          // setDrivingDuration(formatDrivingDuration(DriverStatus.start_time));
+          setDrivingDuration(formatDrivingDuration(DriverStatus.start_time));
         }
 
       if (userData) {
@@ -112,6 +122,32 @@ export default function UserProfile({ navigation }) {
   };
 
 
+  
+useEffect(() => {
+  if (route.params?.scrollTo === 'drowsiness' && drowsinessRef.current && scrollViewRef.current) {
+    setTimeout(() => {
+      drowsinessRef.current.measure((x, y, width, height, pageX, pageY) => {
+        scrollViewRef.current.scrollTo({ y: pageY - 200, animated: true }); // Adjust offset as needed
+      });
+    }, 500);
+  }
+  else if (route.params?.scrollTo === 'distraction' && distractionRef.current && scrollViewRef.current) {
+    setTimeout(() => {
+      distractionRef.current.measure((x, y, width, height, pageX, pageY) => {
+        scrollViewRef.current.scrollTo({ y: pageY - 200, animated: true }); // Adjust offset as needed
+      });
+    }, 500);
+  }
+  else if (route.params?.scrollTo === 'emotion' && emotionRef.current && scrollViewRef.current) {
+    setTimeout(() => {
+      emotionRef.current.measure((x, y, width, height, pageX, pageY) => {
+        scrollViewRef.current.scrollTo({ y: pageY - 200, animated: true }); // Adjust offset as needed
+      });
+    }, 500);
+  }
+}, [route.params?.scrollTo]);
+
+
   useEffect(() => {
     if (currentDriverID) {
       fetchUserData();
@@ -136,6 +172,44 @@ export default function UserProfile({ navigation }) {
       setDrowsinessTextColor(colors.danger);
     }
   }, [drowsinessState]);
+
+  useEffect(() => {
+    if(emotionState === "angry")
+    {
+      setEmotionStateImage(require('../assets/emotions/Angry.png'));
+      setEmotionStateText('angry');
+      setEmotionStateTextColor(colors.danger);
+      setEmotionContainerColor("#FF843E");
+    }
+    else if (emotionState === "happy")
+    {
+      setEmotionStateImage(require('../assets/emotions/Happy.png'));
+      setEmotionStateText('happy');
+      setEmotionStateTextColor(colors.secondary);
+      setEmotionContainerColor("#FDDD6F");
+    }
+    else if (emotionState === "neutral")
+    {
+      setEmotionStateImage(require('../assets/emotions/Neutral.png'));
+      setEmotionStateText('neutral');
+      setEmotionStateTextColor(colors.secondary);
+      setEmotionContainerColor("#DFEBFF");
+    } 
+    else if (emotionState === "sad")
+    {
+      setEmotionStateImage(require('../assets/emotions/Sad.png'));
+      setEmotionStateText('sad');
+      setEmotionStateTextColor(colors.warning);
+      setEmotionContainerColor("#8CA4EE");
+    }
+    else if (emotionState === "fear")
+    {
+      setEmotionStateImage(require("../assets/emotions/Fear.png"));
+      setEmotionStateText('fear');
+      setEmotionStateTextColor(colors.warning);
+      setEmotionContainerColor("#A1E7EB");
+    }
+  },[emotionState]);
   
   useEffect(() =>{ 
     if(focusState === "focused")
@@ -162,7 +236,9 @@ export default function UserProfile({ navigation }) {
         source={require('../assets/Background-blured.jpg')}
       />
       <ScrollView
+        ref={scrollViewRef}
         style={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -239,7 +315,7 @@ export default function UserProfile({ navigation }) {
           </View>
         </View>
 
-        <View style={styles.singleContainers}>
+        <View ref={drowsinessRef} style={styles.singleContainers}>
           <View style={styles.overlay}>
             <Text style={styles.containerMainText}>Drowsiness Monitor</Text>
             <Image
@@ -249,14 +325,14 @@ export default function UserProfile({ navigation }) {
             />
             <Text style={styles.singleContainerText}>
               <Text style={{color: colors.primary}}>Driver is </Text>
-              <Text style={[styles.drowsinessStatus, { color: drowsinessTextColor }]}>
+              <Text style={[styles.StatusValue, { color: drowsinessTextColor }]}>
                 {drowsinessText}
               </Text>
             </Text>
           </View>
         </View>
 
-        <View style={{...styles.singleContainers,marginBottom: 100}}>
+        <View ref={distractionRef} style={styles.singleContainers}>
           <View style={styles.overlay}>
             <Text style={styles.containerMainText}>Distraction Mode</Text>
             <Image
@@ -266,8 +342,25 @@ export default function UserProfile({ navigation }) {
             />
             <Text style={{...styles.singleContainerText,textAlign:'center',marginTop: 20}}>
               <Text style={{color: colors.primary}}>Driver is </Text>
-              <Text style={[styles.drowsinessStatus, { color: focusState === "focused" ? colors.secondary : colors.danger }]}>
+              <Text style={[styles.StatusValue, { color: focusState === "focused" ? colors.secondary : colors.danger }]}>
                 {focusState}
+            </Text>
+            </Text>
+          </View>
+        </View>
+
+        <View ref={emotionRef} style={{...styles.singleContainers,marginBottom: 100,backgroundColor:emotionContainerColor}}>
+          <View style={styles.overlay}>
+            <Text style={{...styles.containerMainText,color:colors.black}}>Emotional State</Text>
+            <Image
+              source={emotionStateImage}
+              style={styles.drowsiness_container_image}
+              resizeMode="contain"
+            />
+            <Text style={{...styles.singleContainerText,textAlign:'center',marginTop: 20}}>
+              <Text style={{color: colors.black}}>Driver seems </Text>
+              <Text style={[styles.StatusValue, { color: colors.black }]}>
+                {emotionState}
             </Text>
             </Text>
           </View>
@@ -288,7 +381,7 @@ export default function UserProfile({ navigation }) {
             <TouchableOpacity onPress={() => navigation.navigate('Garage')}>
               <FontAwesome6 name="square-parking" size={30} color="white" />
             </TouchableOpacity>
-            <TouchableOpacity>
+           <TouchableOpacity onPress={() => navigation.popToTop()}>
               <FontAwesome6 name="car" size={30} color="white" />
             </TouchableOpacity>
             <TouchableOpacity 
@@ -379,7 +472,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
     textAlign: 'left',
-    width: 70,
+    width: 85,
   },
   externalContainer: {
     backgroundColor: colors.background_secondary,
@@ -418,6 +511,9 @@ const styles = StyleSheet.create({
     fontSize:20,
     width:"70%",
   },
+  StatusValue:{
+    fontWeight: 'bold',
+  },
   scoreOuterCircle: {
     width: width,
     height: 250,
@@ -428,6 +524,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   containerMainText: {
+    fontWeight:'bold',
     fontSize: 20,
     color: colors.primary,
     fontWeight: 'bold',

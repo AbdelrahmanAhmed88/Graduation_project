@@ -12,7 +12,8 @@ import {
 } from "react-icons/fa";
 import alertIcon from "./Hazard Warning Flasher.png";
 
-const Sidebar = () => {
+const Sidebar = ({ lockState, handleLockAndUnlockClick }) => {
+
   const [showSettings, setShowSettings] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -79,7 +80,7 @@ const Sidebar = () => {
               <FaFan className="icon" />
             </Link>
           </li>
-          <li>
+          <li  onClick={handleLockAndUnlockClick}>
             <Link to="#Lock">
               <FaLock className="icon" />
             </Link>

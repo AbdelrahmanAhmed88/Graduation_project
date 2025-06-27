@@ -37,6 +37,8 @@ export default function HomeScreen({ navigation }) {
   const [imageUrl, setImageUrl] = useState(null);
   const [currentDriverID, setCurrentDriverID] = useState(null);
 
+
+  
   useEffect(() => {
     const fetchVehicle = async () => {
       const selectedVehicle = await getSelectedVehicle();
@@ -46,6 +48,13 @@ export default function HomeScreen({ navigation }) {
     };
     fetchVehicle();
   }, []);
+
+  useEffect(() => {
+  if (vehicle?.vin) {
+    fetchCurrentDriverImage();
+  }
+}, [vehicle]);
+
   
 
   const model = vehicle?.model;
@@ -191,6 +200,7 @@ export default function HomeScreen({ navigation }) {
       <ScrollView 
         style={[styles.ScrollViewStyle,{width: screenWidth,height: screenHeight}]}
         contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
 
           <View style={styles.row_one}>
@@ -219,21 +229,46 @@ export default function HomeScreen({ navigation }) {
             {/* Driver Status and Profile */}
             <View style={styles.container_two}>
               <View style={styles.profile_status_Container}>
-                <TouchableOpacity style={styles.profile_status_buttons}>
+                <View style={styles.profile_status_buttons}>
+                <TouchableOpacity style={styles.profile_status_buttons}
+                  onPress={() => navigation.navigate('currentDriver', { vin, currentDriverID , scrollTo: 'drowsiness',})}
+                >
                 <Image source={require('../assets/emoji/Awake.png')} style={styles.emoji} />
                   <Text style={styles.emojiText}>Awake</Text>
                 </TouchableOpacity>
-                <View style={styles.profile_status_buttons}>
-                  
-                <TouchableOpacity
-                  style={styles.profileContainer}
-                  onPress={() => navigation.navigate('currentDriver', { vin, currentDriverID })}
-                >
+               </View>
 
-                  <View style={styles.outerCircle}>
-                  <Image source={{ uri: imageUrl }} style={styles.profileImage} />
-                  </View>
-                  </TouchableOpacity>
+                <View style={styles.profile_status_buttons}>
+                  <TouchableOpacity
+                    style={styles.profileContainer}
+                    onPress={() => navigation.navigate('currentDriver', { vin, currentDriverID,})}
+                  >
+
+                    <View style={styles.outerCircle}>
+                    <Image source={{ uri: imageUrl }} style={styles.profileImage} />
+                    </View>
+                    </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.profile_status_Container}>
+                <TouchableOpacity style={styles.profile_status_buttons}
+                  onPress={() => navigation.navigate('currentDriver', { vin, currentDriverID , scrollTo: 'drowsiness',})}
+                >
+                <Image source={require('../assets/emoji/Awake.png')} style={styles.emoji} />
+                  <Text style={styles.emojiText}>Awake</Text>
+                </TouchableOpacity>
+               
+                <View style={styles.profile_status_buttons}>
+                  <TouchableOpacity
+                    style={styles.profileContainer}
+                    onPress={() => navigation.navigate('currentDriver', { vin, currentDriverID,})}
+                  >
+
+                    <View style={styles.outerCircle}>
+                    <Image source={{ uri: imageUrl }} style={styles.profileImage} />
+                    </View>
+                    </TouchableOpacity>
                 </View>
               </View>
 
@@ -356,7 +391,7 @@ const portraitStyles = (screenWidth,screenHeight) => StyleSheet.create({
   },
   profile_status_Container: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
     width: '100%',
     marginVertical: 10,
   },
@@ -447,7 +482,7 @@ const portraitStyles = (screenWidth,screenHeight) => StyleSheet.create({
   bottomNavBlurContainer: {
     position: 'absolute',
     bottom: 20,
-    width: width * 0.9,
+    width: screenWidth * 0.9,
     height: 60,
     borderRadius: 30,
     overflow: 'hidden',
@@ -458,11 +493,11 @@ const portraitStyles = (screenWidth,screenHeight) => StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 100,
     elevation: 20, // Android shadow
-    borderWidth: 2,
-    borderColor: colors.primary, 
+    // borderWidth: 2,
+    // borderColor: colors.primary, 
   },
   bottomNavBlur:{
-    width:width *0.9,
+    width:screenWidth *0.9,
     alignitems: 'center',
     justifyContent: "space-evenly",
     flexDirection: 'row',
@@ -632,6 +667,36 @@ const landscapeStyles = (screenWidth,screenHeight) => StyleSheet.create({
     width: 30,
     height: 30,
   },
+  bottomNavBlurContainer: {
+    position: 'absolute',
+    bottom: 20,
+    width: screenWidth * 0.9,
+    height: 50,
+    borderRadius: 30,
+    overflow: 'hidden',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 100,
+    elevation: 20, // Android shadow
+    // borderWidth: 2,
+    // borderColor: colors.primary, 
+  },
+  bottomNavBlur:{
+    width:screenWidth *0.9,
+    alignItems: 'center',
+    justifyContent: "space-evenly",
+    flexDirection: 'row',
+    height: 60,
+  },
+  bottomNavBlurOverlay:{
+    width:"100%",
+    alignItems: 'center',
+    justifyContent:'space-evenly',
+    flexDirection:'row',
+  }
 
 });
 

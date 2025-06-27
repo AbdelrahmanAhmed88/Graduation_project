@@ -71,14 +71,15 @@ def update_user_data(user_id, new_data):
         return False
 
 
-def update_current_driver_data(user_id,drowsiness_state,focus_state,start_time):
+def update_current_driver_data(user_id,start_time,drowsiness_state,focus_state,emotion_state):
     url = f"{BASE_URL}/vehicles/{vehicle_config.VIN}/currentDriver"
 
     payload = {
             "user_id": user_id,
             "start_time": start_time,
             "drowsiness_state": drowsiness_state,
-            "focus_state": focus_state
+            "focus_state": focus_state,
+            "emotion_state": emotion_state
     }
     try:
         response = requests.patch(url,json = payload)

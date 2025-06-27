@@ -41,7 +41,7 @@ function FirstTimeLogin2() {
         admin: {
           name,
           phone_number: phone,
-          email,
+          email: email.toLowerCase(),
           password
         }
       };
