@@ -1,17 +1,21 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import "./UserProfile.css";
+import master_profile_image from "../assets/images/master_profile_image.png";
 
 export default function CurrentUser() {
   const [image, setImage] = useState(null);
   const [userData, setUserData] = useState(null);
-  const [unauthorized, setUnauthorized] = useState(false);
-
+  const [isMaster, setIsMaster] = useState(false);
   useEffect(() => {
   
       const storedUserID = sessionStorage.getItem("userID");
       if (!storedUserID) {
-        setUnauthorized(true);
+        return;
+      }
+      if (storedUserID === "Master") {
+        setIsMaster(true);
+        setImage(master_profile_image);
         return;
       }
       
@@ -28,10 +32,8 @@ export default function CurrentUser() {
             setUserData(user);
             setImage(user.image);
           } else {
-            setUnauthorized(true);
           }
         }).catch(() => {
-          setUnauthorized(true);
         });
   }, []);
   
@@ -45,15 +47,9 @@ export default function CurrentUser() {
     <div className="app-container">
       <Sidebar />
       
-      {unauthorized ? (
-        <div className="unauthorized-container">
-          <h2>🚫 Unauthorized to Use the Car!</h2>
-          <p>This user is not authorized to drive the car.</p>
-        </div>
-      ) : (
         <div className="profile-container">
           <div className="profile-left">
-            {image ? <img src={`http://localhost:5000/users/images/${image}`} alt="User" className="profile-imagee" /> : <p>No Image</p>}
+            {image ? <img src={isMaster ? image : `http://localhost:5000/users/images/${image}`} alt="User" className="profile-imagee" /> : <p>No Image</p>}
             <h2 className="input-field">{userData?.name}</h2>
           </div>
           <div className="separator"></div>
@@ -86,7 +82,6 @@ export default function CurrentUser() {
             </div>
           </div>
         </div>
-      )}
     </div>
   );
 }

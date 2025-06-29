@@ -9,6 +9,21 @@ import mediapipe as mp
 from collections import deque, Counter
 from cv2 import solvePnP, Rodrigues
 
+# ============terminating logic
+import signal
+import sys
+
+stop_flag = False
+
+def handle_sigterm(signum, frame):
+    global stop_flag
+    print("[Subprocess] SIGTERM received. Exiting...")
+    stop_flag = True
+    sys.exit(0)
+
+signal.signal(signal.SIGTERM, handle_sigterm)
+signal.signal(signal.SIGINT, handle_sigterm)
+
 # ========== Sound Alert ==========
 def play_tone(freq, duration, samplerate=44100):
     t = np.linspace(0, duration, int(samplerate * duration), endpoint=False)
@@ -24,7 +39,7 @@ class_labels = ['Angry', 'Fear', 'Happy', 'Neutral', 'Sad']
 emotion_history = deque(maxlen=10)
 emotion_check_interval = 10
 frame_count = 0
-prev_emotion = NULL
+prev_emotion = None
 
 # ========== MediaPipe Setup ==========
 mp_face_mesh = mp.solutions.face_mesh
@@ -100,7 +115,7 @@ def get_head_pose(landmarks, w, h):
 cap = cv2.VideoCapture(0)
 t1 = cv2.getTickCount() / cv2.getTickFrequency()
 
-while True:
+while not stop_flag:
     ret, frame = cap.read()
     if not ret:
         break

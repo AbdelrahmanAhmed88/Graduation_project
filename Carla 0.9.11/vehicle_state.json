@@ -1,6 +1,6 @@
 {
-    "engine_on": true,
-    "doors_locked": false,
+    "engine_on": false,
+    "doors_locked": true,
     "speed_limit": 150,
     "driving_score": 10,
     "drowsiness_mode": false,

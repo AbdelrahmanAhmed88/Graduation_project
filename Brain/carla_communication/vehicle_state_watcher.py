@@ -20,20 +20,26 @@ class VehicleStateHandler(FileSystemEventHandler):
             print(f"[Watcher Init] Could not read initial state: {e}")
             return None
 
+
     def on_modified(self, event):
         if event.src_path == STATES_FILE:
-            try:
-                with open(STATES_FILE, 'r') as f:
-                    current_state = json.load(f)
+            for attempt in range(3):
+                try:
+                    with open(STATES_FILE, 'r') as f:
+                        current_state = json.load(f)
 
-                if self.last_state is not None:
-                    changes = self.detect_changes(self.last_state, current_state)
-                    if changes:
-                        self.callback(current_state, changes)
+                    if self.last_state is not None:
+                        changes = self.detect_changes(self.last_state, current_state)
+                        if changes:
+                            self.callback(current_state, changes)
 
-                self.last_state = current_state  # Update saved state
-            except Exception as e:
-                print(f"[Watcher] Failed to read updated state: {e}")
+                    self.last_state = current_state
+                    break  # successful read, exit loop
+
+                except Exception as e:
+                    print(f"[Watcher] Failed to read updated state (attempt {attempt+1}): {e}")
+                    time.sleep(0.1)  # small delay before retry
+
 
     def detect_changes(self, old, new):
         changes = {}

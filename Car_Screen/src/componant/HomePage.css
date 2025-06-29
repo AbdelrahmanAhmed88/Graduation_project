@@ -1,226 +1,380 @@
-.app-container {
-  display: flex;
-  height: 100vh; /* جعل الصفحة تملأ الشاشة بالكامل */
-}
-
-/*  ضبط الصفحة الرئيسية بحيث تملأ الشاشة */
-.homepage-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 30px;
-  margin-top: 105px;
-}
-
-/*  السيارة في اليسار وتكبير حجمها */
-.car-container {
-  width: 700px; /*  زيادة حجم السيارة */
-  background: #111;
-  padding: 40px;
-  border-radius: 13px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-left: 200px; /*  زيادة المسافة من اليسار */
-}
-
-.car-image {
-  width: 100%;
-  height: auto;
-}
-
-/*  حالة الأبواب والأنوار */
-.status-text {
-  font-size: 28px; /*  تكبير الخط */
-  margin-top: 20px;
-  text-transform: uppercase;
-  font-weight: bold;
-  color: white;
-}
-
-/*  السائق + الإيموجي + الإشعارات */
-.driver-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 40px;
-  margin-left: 50px; /*  زيادة المسافة من اليسار */
-  margin-right: 180px;
-}
-
-/*  جعل الإيموجي وصورة السائق بجانب بعض */
-.driver-details {
-  display: flex;
-  align-items: center;
-  gap: 50px; /*  زيادة المسافة بين الإيموجي وصورة السائق */
-}
-
-/*  تكبير الإيموجي */
-.status-box {
-  background: #111;
-  width: 180px;
-  height: 180px;
-  padding: 40px;
-  border-radius: 13px;
-  text-align: center;
-}
-
-.emoji-image {
-  width: 150px; /* زيادة حجم الإيموجي */
-  height: 150px;
-}
-
-.status-text {
-  font-size: 32px; /*  تكبير الخط */
-  font-weight: bold;
-  color: white;
-  margin: 0;
-}
-
-/*  تكبير صورة السائق */
-.profilee-image-container {
-  position: relative;
-  width: 220px; /*  حجم أكبر */
-  height: 220px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #111; /*  خلفية شفافة */
-  border-radius: 13px; /*  حواف دائرية مثل باقي العناصر */
-  padding: 20px; /*  مساحة داخلية */
-}
-
-.profilee-frame {
-  position: absolute;
-  width: 90%;
-  height: 90%;
-  border-radius: 50%;
-}
-
-.profilee-image {
-  width: 200px; 
-  height: 200px;
-  border-radius: 50%;
-  position: absolute;
-  object-fit: cover;  
-  object-position: center; 
-}
-
-/*  تكبير الإشعارات */
-.notifications {
-  width: 500px; /*  تكبير عرض الإشعارات */
-  background: #111;
-  padding: 30px;
-  border-radius: 13px;
-  text-align: center;
-}
-
-.notifications h3 {
-  font-size: 30px; /*  تكبير عنوان الإشعارات */
-  margin-bottom: 20px;
-  color: white;
-}
-
-.notification-item {
-  background: rgba(0, 0, 0, 0.6);
-  padding: 20px;
-  border-radius: 13px;
-  font-size: 24px; /*  تكبير نص الإشعارات */
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-/*  تنبيه بحالة السائق إذا كان ناعسًا */
-.notification-item.warning {
-  background: #ff0000;
-  color: white;
-  font-weight: bold;
-  animation: blink 1s infinite alternate;
-}
-
-@keyframes blink {
-  from {
-    opacity: 1;
+  .app-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%; /* جعل الصفحة تملأ الشاشة بالكامل */
+    overflow: hidden;
   }
-  to {
-    opacity: 0.5;
-  }
-}
-.car-canvas {
-  width: 100%;
-  height: 300px;
-  margin-bottom: 1rem;
-}
-canvas {
-  width: 100% !important;
-  height: 100% !important;
-  display: block;
-}
 
-.modal-overlay {
+  /*  ضبط الصفحة الرئيسية بحيث تملأ الشاشة */
+  .homepage-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 30px;
+    margin-top: 105px;
+  }
+
+  /*  السيارة في اليسار وتكبير حجمها */
+  .car-container {
+    width: 700px; /*  زيادة حجم السيارة */
+    background: #111;
+    padding: 40px;
+    border-radius: 13px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-left: 200px; /*  زيادة المسافة من اليسار */
+  }
+
+  .car-image {
+    width: 100%;
+    height: auto;
+  }
+
+  /*  حالة الأبواب والأنوار */
+  .status-text {
+    font-size: 28px; /*  تكبير الخط */
+    margin-top: 20px;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: white;
+  }
+
+  /*  السائق + الإيموجي + الإشعارات */
+  .driver-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    margin-left: 50px; /*  زيادة المسافة من اليسار */
+    margin-right: 180px;
+  }
+
+  /*  جعل الإيموجي وصورة السائق بجانب بعض */
+  .driver-details {
+    display: flex;
+    align-items: center;
+    gap: 50px; /*  زيادة المسافة بين الإيموجي وصورة السائق */
+  }
+
+  /*  تكبير الإيموجي */
+  .emoji-box {
+    background: #111;
+    width: 180px;
+    height: 180px;
+    padding: 40px;
+    border-radius: 13px;
+    text-align: center;
+  }
+
+  .emoji-image {
+    width: 150px; /* زيادة حجم الإيموجي */
+    height: 150px;
+  }
+
+  .status-text {
+    font-size: 32px; /*  تكبير الخط */
+    font-weight: bold;
+    color: white;
+    margin: 0;
+  }
+
+  /*  تكبير صورة السائق */
+  .profilee-image-container {
+    position: relative;
+    width: 220px; /*  حجم أكبر */
+    height: 220px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #111; /*  خلفية شفافة */
+    border-radius: 13px; /*  حواف دائرية مثل باقي العناصر */
+    padding: 20px; /*  مساحة داخلية */
+  }
+
+  .profilee-frame {
+    position: absolute;
+    width: 90%;
+    height: 90%;
+    border-radius: 50%;
+  }
+
+  .profilee-image {
+    width: 200px; 
+    height: 200px;
+    border-radius: 50%;
+    position: absolute;
+    object-fit: cover;  
+    object-position: center; 
+  }
+
+  /*  تكبير الإشعارات */
+  .notifications {
+    width: 500px; /*  تكبير عرض الإشعارات */
+    background: #111;
+    padding: 30px;
+    border-radius: 13px;
+    text-align: center;
+  }
+
+  .notifications h3 {
+    font-size: 30px; /*  تكبير عنوان الإشعارات */
+    margin-bottom: 20px;
+    color: white;
+  }
+
+  .notification-item {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+    border-radius: 13px;
+    font-size: 24px; /*  تكبير نص الإشعارات */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  /*  تنبيه بحالة السائق إذا كان ناعسًا */
+  .notification-item.warning {
+    background: #ff0000;
+    color: white;
+    font-weight: bold;
+    animation: blink 1s infinite alternate;
+  }
+
+  @keyframes blink {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0.5;
+    }
+  }
+  .car-canvas {
+    width: 100%;
+    height: 300px;
+    margin-bottom: 1rem;
+  }
+  canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal {
+    background: white;
+    padding: 2rem 3rem;
+    border-radius: 15px;
+    text-align: center;
+    max-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .modal h2 {
+    margin-bottom: 1rem;
+    color: #222;
+  }
+
+  .confirm-button {
+    margin-top: 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .confirm-button:hover {
+    background-color: #0056b3;
+  }
+  .loading-screen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+
+  .loading-modal {
+    background: white;
+    padding: 2rem 3rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+  .status-summary-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px;
+
+    margin-right: 10px;
+    margin-top: 70px;
+    margin-left: 110px;
+    gap: 50px;
+    
+  }
+
+  .status-box {
+    background-color: #111;
+    border-radius: 15px;
+    padding: 1px;
+    width: 530px;
+    height: 700px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    
+  }
+
+
+  .status-box h3 {
+    color: #A16455;
+    font-size: 32px;
+    margin-bottom: 15px;
+    text-align: left;
+    top: 0px;
+    margin-left: 20px;   
+    position: absolute;
+    
+  }
+
+
+  .lottie-container {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    margin-bottom: 10px;
+    margin: 10px auto; 
+  }
+  .lottie-score {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 100px;
+    font-weight: bold;
+    color: #fff;
+  }
+
+
+  .status-img {
+    width: 400px;
+    height: 400px;
+    margin-bottom: 0px;
+    object-fit: contain;
+    margin: 0px auto;
+
+  }
+
+
+  .emotion-text{
+    font-size: 30px;
+    font-weight: bold;
+    color: black;
+    text-align: center;
+  }
+  .focus-text {
+    font-size: 30px;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+  }
+
+  .emotion-section {
+    padding: 20px;
+    padding-top: 40px;
+    border-radius: 35px;
+    margin-top: 80px;
+    margin-left: 40px;
+    margin-right: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .emotion-neutral {
+    background-color: #DFEBFF;
+  }
+
+  .emotion-angry {
+    background-color: #FF843E;
+  }
+
+  .emotion-sad {
+    background-color: #8CA4EE;
+  }
+
+  .emotion-fear {
+    background-color: #A1E7EB;
+  }
+
+  .emotion-happy {
+    background-color: #FDDD6F;
+  }
+
+  .toggle-button{
+    position: absolute;
+    color: #A16455;
+    background-color: transparent;
+    border-width: 0;
+    font-size: 50px;
+    padding: 10px;
+    right: 100px;
+    top: 200px,
+  }
+
+.closing-screen-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  background: black;
   z-index: 9999;
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: background 1s ease;
 }
 
-.modal {
-  background: white;
-  padding: 2rem 3rem;
-  border-radius: 15px;
+.closing-screen-overlay.fully-black {
+  background-color: black;
+}
+
+.closing-modal {
   text-align: center;
-  max-width: 400px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-}
-
-.modal h2 {
-  margin-bottom: 1rem;
-  color: #222;
-}
-
-.confirm-button {
-  margin-top: 1rem;
-  background-color: #007bff;
   color: white;
-  border: none;
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.3s ease;
+  animation: pulseFade 2s ease-in-out infinite;
 }
 
-.confirm-button:hover {
-  background-color: #0056b3;
-}
-.loading-screen-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.loading-modal {
-  background: white;
-  padding: 2rem 3rem;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+@keyframes pulseFade {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
 }

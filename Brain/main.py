@@ -1,7 +1,8 @@
+from sympy import true
 from serial_reader.reader import SerialReader
 from Models.faceCheckModelExec import face_check, store_encoding
 from Models.drowsiness_distraction_ModelExec import DrowsinessDistractionDetectionexec, stop_drowsiness_distraction_detection
-from carla_communication.carla_interface import update_drowsiness_mode, update_speed_limit ,update_engine_on_state,reset_driver_score,update_doors_locked_state
+from carla_communication.carla_interface import update_drowsiness_mode, update_speed_limit ,update_engine_on_state,reset_driver_score,update_doors_locked_state,update_door_locked_state,is_doors_locked
 import subprocess
 from config import vehicle_config
 from config.driver_Data import session
@@ -34,6 +35,9 @@ from api_client.get_images import download_images_for_car
 reader = None  # Global reader
 
 # driver_info = {}
+
+#variables
+turned_off = False
 
 
 # Callbacks
@@ -122,6 +126,7 @@ def DDD_callback(message):
             is_distracted = True
             last_distracted_time = current_time  
             session.updateDriverStates(focus_state="Distracted")
+            screen_client.display_message("DISTRACTED_STATE", "Distracted")
             screen_client.display_message("You seem distracted — please pay attention.")
             print("Distraction Alert!")
 
@@ -211,8 +216,7 @@ def masterCardAccessHomepage():
             # print("URL opened successfully")
         except Exception as e:
             print(f"Error opening the website: {e}")
-
-
+ 
 
 # Callback function to handle vehicle ID
 def handle_vehicle_id(vehicle_id):
@@ -231,51 +235,59 @@ def handle_nfc_id(nfc_id):
     print(f"NFC ID received: {nfc_id}")
     
     if nfc_id in vehicle_config.MASTER_CARDS:
-        reader.send("O")
-        time.sleep(3)
-        reader.send("U")
-        masterCardAccessHomepage()
+        if is_doors_locked():
+            reader.send("U")
+            session.user_id = "Master"
+            update_door_locked_state(False)
+            masterCardAccessHomepage()
+        else:
+            reader.send("L")
+            update_door_locked_state(True)
     else:
         data = validate_nfc(nfc_id,vehicle_config.VIN)
         if(data):
-            reader.send("O")
-            api_url = f"http://localhost:5000/api/vehicles/{vehicle_config.VIN}"
-            response = requests.get(api_url)
-            
-            response.raise_for_status()  # This will throw an error if the status code is not 2xx
+            if is_doors_locked():
+                reader.send("U")
+                update_door_locked_state(False)
+                api_url = f"http://localhost:5000/api/vehicles/{vehicle_config.VIN}"
+                response = requests.get(api_url)
+                
+                response.raise_for_status()  # This will throw an error if the status code is not 2xx
 
-            data = response.json()
+                data = response.json()
 
-            usersUpdated = data['vehicle']['updated']
+                usersUpdated = data['vehicle']['updated']
 
-            if(usersUpdated):
-                download_images_for_car(vehicle_config.VIN)
-                store_encoding()
+                if(usersUpdated):
+                    download_images_for_car(vehicle_config.VIN)
+                    store_encoding()
+                else:
+                    print("No users update")
+                screen_client.display_message("USERCREDENTIALS","IDENTIFYING")
+                face_check(my_callback)
             else:
-                print("No users update")
-            screen_client.display_message("USERCREDENTIALS","IDENTIFYING")
-            face_check(my_callback)
+                reader.send("L")
+                update_door_locked_state(True)
         else:
             reader.send("N")
 
 # Callback function to handle commands (when 'c' is received)
 def handle_command(command):
     if(command == 'exit'):
-        screen_client.display_message("NOTIFICATION", "Goodbye! Don’t forget your phone")
-        vehicle_client.send_message("Don’t forget your phone")
-        session.resetDriverStates()
-        update_engine_on_state(False)
+        print("exit")
         stop_drowsiness_distraction_detection()
-        reset_driver_score()
-        # vehicle_client.close()
+        update_engine_on_state(False)
     elif(command == 'start'):
-        update_engine_on_state(True)
-        reset_drowsiness_flags()
-        vehicle_client.send_message("Engine started.")
-        screen_client.display_message("NOTIFICATION", "Engine started.")
-        print("Engine started.")
+        if(session.user_id):
+            update_engine_on_state(True)
+        else:
+            screen_client.display_message("USERCREDENTIALS","IDENTIFYING")
+            face_check(my_callback)
+
 
 def on_vehicle_state_change(data, changes):
+    global turned_off
+
     print(f"[MAIN] vehicle_state.json changed:")
     
     for key, change in changes.items():
@@ -284,11 +296,33 @@ def on_vehicle_state_change(data, changes):
     # Apply new speed limit if updated
     if 'driving_score' in changes and data.get("driving_score", 0) >= 0:
         update_user_data(session.user_id, {"driving_score": data.get("driving_score")})
-    if 'engine_on' in changes and data.get("engine_on", 0) == True:
-        print("Drwosiness and Distraction Detection start")
+        screen_client.display_message("DRIVING_SCORE", data.get("driving_score"))
+
+    if 'engine_on' in changes and data.get("engine_on") is True:
+        screen_client.display_message("NOTIFICATION", "Engine started.")
+        vehicle_client.send_message("Engine started.")
+        reset_drowsiness_flags()
         DrowsinessDistractionDetectionexec(DDD_callback)
-    if 'engine_on' in changes and data.get("engine_on", 0) == False:
-        print("Drwosiness and Distraction Detection stop")
+        turned_off = False
+
+    if 'engine_on' in changes and data.get("engine_on") is False:
+        screen_client.display_message("NOTIFICATION", "Goodbye! Don’t forget your phone")
+        vehicle_client.send_message("Don’t forget your phone")
+        turned_off = True
+        if(session.user_id != "Master"):
+            session.resetDriverStates()
+    if 'doors_locked' in changes and data.get("doors_locked") is True:
+        if(turned_off):
+            session.resetDriverStates()
+            reset_driver_score()
+            turned_off = False
+            screen_client.display_message("Control", "ClOSEDISPLAY")
+
+
+
+
+
+
 
 
 

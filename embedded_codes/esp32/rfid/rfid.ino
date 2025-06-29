@@ -51,6 +51,10 @@ void loop() {
       wait_response = false;
     } else if (cmd == "U") {
       stmSerial.print(cmd);
+      wait_response = false;
+    } else if (cmd == "L") {
+      stmSerial.print(cmd);
+      wait_response = false;
     }
   }
 
@@ -69,14 +73,14 @@ void loop() {
   }
 
   // NFC scanning
-  if (nfc_passed == "N" && wait_response == false) {
+  if (wait_response == false) {
     uint8_t uid[7];
     uint8_t uidLength;
 
     nfc.setPassiveActivationRetries(0xFF);
     nfc.SAMConfig();
 
-    if (nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength)) {
+    if (nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength,60)) {
       String uidString = "";
 
       for (uint8_t i = 0; i < uidLength; i++) {

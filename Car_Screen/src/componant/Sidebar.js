@@ -9,10 +9,12 @@ import {
   FaFan,
   FaLock,
   FaHandPaper,
+  FaCaretRight,
+  FaExchangeAlt 
 } from "react-icons/fa";
 import alertIcon from "./Hazard Warning Flasher.png";
 
-const Sidebar = ({ lockState, handleLockAndUnlockClick }) => {
+const Sidebar = ({ lockState, handleLockAndUnlockClick, toggleSection }) => {
 
   const [showSettings, setShowSettings] = useState(false);
   const dropdownRef = useRef(null);
@@ -85,9 +87,9 @@ const Sidebar = ({ lockState, handleLockAndUnlockClick }) => {
               <FaLock className="icon" />
             </Link>
           </li>
-          <li>
+          <li onClick={toggleSection}>
             <Link to="#HandGesture">
-              <FaHandPaper className="icon" />
+              <FaExchangeAlt  className="icon"/>
             </Link>
           </li>
         </ul>

@@ -30,5 +30,12 @@ def stop_drowsiness_distraction_detection():
     global detection_process
     if detection_process and detection_process.poll() is None:
         print("Stopping detection subprocess...")
-        detection_process.terminate()  # or use .kill() if needed
-        detection_process.wait()
+        detection_process.terminate()
+        try:
+            detection_process.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            print("Subprocess did not terminate in time. Killing...")
+            detection_process.kill()
+            detection_process.wait()
+        finally:
+            detection_process = None

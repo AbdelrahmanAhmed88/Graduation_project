@@ -1,6 +1,8 @@
 import json
 import threading
 import os
+import tempfile
+import shutil
 
 STATES_FILE = r"C:\Bedo\github_repo\Graduation_project\Carla 0.9.11\vehicle_state.json"
 _lock = threading.Lock()
@@ -14,11 +16,15 @@ def read_state():
             print(f"[Read Error] {e}")
             return {}
 
-def write_state(data:dict):
+def write_state(data: dict):
     with _lock:
         try:
-            with open (STATES_FILE, 'w') as f:
-                json.dump(data,f,indent=4)
+            dir_name = os.path.dirname(STATES_FILE)
+            with tempfile.NamedTemporaryFile('w', dir=dir_name, delete=False) as tmp_file:
+                json.dump(data, tmp_file, indent=4)
+                tmp_file.flush()
+                os.fsync(tmp_file.fileno())
+            shutil.move(tmp_file.name, STATES_FILE)
         except Exception as e:
             print(f"[Write Error] {e}")
 
@@ -45,4 +51,13 @@ def reset_driver_score():
 def update_speed_limit(new_limit: int):
     state = read_state()
     state["speed_limit"] = new_limit
+    write_state(state)
+
+def is_doors_locked():
+    state = read_state()
+    return state["doors_locked"]
+
+def update_door_locked_state(locked: bool):
+    state = read_state()
+    state["doors_locked"] = locked
     write_state(state)

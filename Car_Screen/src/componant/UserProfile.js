@@ -10,7 +10,9 @@ function generateUserID() {
 
 export default function UserProfile() {
   const [image, setImage] = useState(null);
+  const [user_id, setUserID] = useState(null);
   const storedVehicleID = sessionStorage.getItem("vehicleID");
+  const [isMaster, setIsMaster] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     // nfc_id: "",
@@ -21,6 +23,14 @@ export default function UserProfile() {
     focus_mode: true, 
   });
 
+  useEffect(() =>{
+    const userID = sessionStorage.getItem("userID");
+    setUserID(userID);
+    if(userID === "Master")
+    {
+      setIsMaster(true);
+    }
+  },[user_id]);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -121,7 +131,14 @@ export default function UserProfile() {
   return (
     <div className="app-container">
       <Sidebar />
-      <div className="profile-container">
+
+      {!isMaster ? (
+        <div className="unauthorized-container">
+          <h2>🔒 Access Limited</h2>
+          <p>Adding or editing users is only allowed with the Master Card</p>
+        </div>
+      ) : (
+        <div className="profile-container">
         <div className="profile-left">
           {/*  عرض الصورة المحفوظة أو زر التحميل */}
           {image ? (
@@ -200,6 +217,7 @@ export default function UserProfile() {
           <button className="button" onClick={handleSaveUser}>Save</button>
         </div>
       </div>
+      )}
     </div>
   );
 }

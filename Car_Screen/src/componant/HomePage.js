@@ -2,11 +2,12 @@ import React, { useContext, useState, useEffect, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
 import "./HomePage.css";
-
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
+import { motion, AnimatePresence } from "framer-motion";
+import Lottie from "lottie-react";
 
-// Images and assets
+// Assets
 import awake from "./image-home/awake.png";
 import yawning from "./image-home/yawning-face.png";
 import sleeping from "./image-home/sleeping-face.png";
@@ -14,18 +15,30 @@ import takeBreakImage from "./image-home/takeBreakImage.png";
 import ellipse from "./image-home/Ellipse 1.png";
 import alarm from "../assets/sounds/alarm.mp3";
 import master_profile_image from "../assets/images/master_profile_image.png";
-
 import Sidebar from "./Sidebar";
+
+// Emotions
+import angryImg from "../assets/images/Angry.png";
+import sadImg from "../assets/images/Sad.png";
+import fearImg from "../assets/images/fear.png";
+import joyImg from "../assets/images/Happy.png";
+import neutralImg from "../assets/images/Neutral.png";
+import focusedImg from "../assets/images/focused.png";
+import unfocusedImg from "../assets/images/unfocused.png";
+
+// Lottie
+import successSec from "../assets/border-success-secoundry.json";
+import success from "../assets/border-success.json";
+import warning from "../assets/border-warning.json";
+import danger from "../assets/border-danger.json";
 
 export default function HomePage() {
   const navigate = useNavigate();
   const { userData } = useContext(UserContext);
-
   const [driverState, setDriverState] = useState("AWAKE");
   const [currentDriver, setCurrentDriver] = useState(() => {
     return JSON.parse(localStorage.getItem("recognizedUser")) || userData;
   });
-
   const [notification, setNotification] = useState("No Notifications");
   const [lightsState, setLightsState] = useState("OFF");
   const [lockState, setLockState] = useState("UNLOCKED");
@@ -34,56 +47,72 @@ export default function HomePage() {
   const [socketRef, setSocketRef] = useState(null);
   const [userID, setUserID] = useState(() => sessionStorage.getItem("userID"));
   const [isIdentifying, setIsIdentifying] = useState(false);
+  const [activeSection, setActiveSection] = useState("homepage");
+
+  // Right side
+  const [score, setScore] = useState(10);
+  const [emotion, setEmotion] = useState("neutral");
+  const [focus, setFocus] = useState("focused");
+
+  const [isClosingDisplay, setIsClosingDisplay] = useState(false);
+  const [isFullyBlack, setIsFullyBlack] = useState(false);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const vehicle_id = params.get("v");
-    if (vehicle_id) sessionStorage.setItem("vehicleID", vehicle_id);
+    if (isClosingDisplay) {
+      const timer = setTimeout(() => {
+        setIsFullyBlack(true);
+      }, 3000); // after 3 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [isClosingDisplay]);
 
-    const savedState = sessionStorage.getItem("DROWSINESS_STATE");
-    if (savedState) setDriverState(savedState);
+  const getEmotionImage = () => {
+    switch (emotion) {
+      case "angry": return angryImg;
+      case "sad": return sadImg;
+      case "fear": return fearImg;
+      case "happy": return joyImg;
+      case "neutral": return neutralImg;
+      default: return null;
+    }
+  };
 
-    const lastNotification = sessionStorage.getItem("last_notification");
-    if (lastNotification) setNotification(lastNotification);
-  }, []);
+  const getFocusImage = () => {
+    return focus === "focused" ? focusedImg : unfocusedImg;
+  };
+
+  const getScoreAnimation = () => {
+    if (score === 10) return successSec;
+    else if (score < 10 && score >= 7) return success;
+    else if (score < 7 && score > 3) return warning;
+    else return danger;
+  };
 
   useEffect(() => {
     const userID = sessionStorage.getItem("userID");
-    if (userID) {
-      if (userID === "Master") {
-        setCurrentDriver({
-          name: "Master",
-          speed_limit: false,
-          max_speed: 220,
-        });
-        setProfileImage(master_profile_image);
-      } else {
-        fetch(`http://localhost:5000/api/users/${userID}`)
-          .then((response) => response.json())
-          .then((data) => {
-            setCurrentDriver(data.user);
-            if (data.user.image) {
-              const imageUrl = `http://localhost:5000/users/images/${data.user.image}`;
-              setProfileImage(imageUrl);
-            }
-          })
-          .catch((error) => {
-            console.error("Error fetching user data:", error);
-          });
-      }
+    if (userID === "Master") {
+      setCurrentDriver({ name: "Master", speed_limit: false, max_speed: 220 });
+      setProfileImage(master_profile_image);
+    } else if (userID) {
+      fetch(`http://localhost:5000/api/users/${userID}`)
+        .then(res => res.json())
+        .then(data => {
+          setCurrentDriver(data.user);
+          if (data.user.image) {
+            setProfileImage(`http://localhost:5000/users/images/${data.user.image}`);
+          }
+        })
+        .catch(err => console.error("Error fetching user:", err));
     }
   }, [userID]);
 
   let alarmAudio;
-
   const playAlarm = () => {
     if (!alarmAudio) {
       alarmAudio = new Audio(alarm);
       alarmAudio.loop = true;
     }
-    alarmAudio.play().catch((error) => {
-      console.error("Audio playback failed:", error);
-    });
+    alarmAudio.play().catch(err => console.error("Audio play failed:", err));
   };
 
   const stopAlarm = () => {
@@ -104,31 +133,32 @@ export default function HomePage() {
     const socket = new WebSocket("ws://localhost:8080");
     setSocketRef(socket);
 
-    socket.onopen = () => {
-      console.log("Connected to WebSocket server");
-      socket.send("Screen connected");
-    };
+    socket.onopen = () => socket.send("Screen connected");
 
     socket.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
         if (!msg.type || !msg.message) return;
-        console.log(msg);
+
         switch (msg.type) {
+          case "Control":
+            if(msg.message === "ClOSEDISPLAY")
+                setIsClosingDisplay(true);
+            if(msg.message === "STARTDISPLAY")
+                setIsClosingDisplay(false);
+            break;
+
           case "USERCREDENTIALS":
-            if(msg.message === "IDENTIFYING")
-            {
+            if (msg.message === "IDENTIFYING") {
+              setIsClosingDisplay(false);
               setIsIdentifying(true);
-              break;
-            }
-            else
-            {
-              const user_id = msg.message;
-              sessionStorage.setItem("userID", user_id);
-              setUserID(user_id);
+            } else {
+              const id = msg.message;
+              sessionStorage.setItem("userID", id);
+              setUserID(id);
               setIsIdentifying(false);
-              break;
             }
+            break;
 
           case "DROWSINESS_STATE":
             const state = msg.message.toUpperCase();
@@ -136,23 +166,33 @@ export default function HomePage() {
             sessionStorage.setItem("DROWSINESS_STATE", state);
             if (state === "ASLEEP") setShowWakePrompt(true);
             if (msg.notification) {
-              setNotification(`${msg.notification}`);
-              sessionStorage.setItem("last_notification", msg.notification);
-            }
-            break;
-          
-          case "EMOTIONS_STATE":
-            // console.log(msg)
-            const emotion = msg.message;
-            if (msg.notification) {
-              setNotification(`${msg.notification}`);
+              setNotification(msg.notification);
               sessionStorage.setItem("last_notification", msg.notification);
             }
             break;
 
+          case "EMOTIONS_STATE":
+            setEmotion(msg.message.toLowerCase());
+            if (msg.notification) {
+              setNotification(msg.notification);
+              sessionStorage.setItem("last_notification", msg.notification);
+            }
+            break;
+
+          case "DISTRACTED_STATE":
+            setFocus(msg.message.toLowerCase());
+            if (msg.notification) {
+              setNotification(msg.notification);
+              sessionStorage.setItem("last_notification", msg.notification);
+            }
+            break;
+
+          case "DRIVING_SCORE":
+            setScore(msg.message);
+            break;
 
           case "NOTIFICATION":
-            setNotification(`${msg.message}`);
+            setNotification(msg.message);
             sessionStorage.setItem("last_notification", msg.message);
             break;
 
@@ -160,17 +200,12 @@ export default function HomePage() {
             setNotification(`ℹ️ ${msg.message}`);
         }
       } catch (err) {
-        console.error("Error parsing WebSocket message:", err);
+        console.error("WebSocket parse error:", err);
       }
     };
 
-    socket.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
-
-    return () => {
-      socket.close();
-    };
+    socket.onerror = (error) => console.error("WebSocket error:", error);
+    return () => socket.close();
   }, []);
 
   const handleEmojiClick = () => navigate("DriverState");
@@ -178,33 +213,24 @@ export default function HomePage() {
 
   const getDriverImage = () => {
     switch (driverState) {
-      case "AWAKE":
-        return awake;
-      case "DROWSY":
-        return yawning;
-      case "ASLEEP":
-        return sleeping;
-      case "BREAK":
-        return takeBreakImage;
-      default:
-        return awake;
+      case "AWAKE": return awake;
+      case "DROWSY": return yawning;
+      case "ASLEEP": return sleeping;
+      case "BREAK": return takeBreakImage;
+      default: return awake;
     }
   };
 
   const handleLockAndUnlockClick = () => {
-    if (socketRef && socketRef.readyState === WebSocket.OPEN) {
-      if (lockState === "LOCKED") {
-        setLockState("UNLOCKED");
-        socketRef.send(JSON.stringify({ type: "LOCK_STATE", message: "UNLOCKED" }));
-      } else {
-        setLockState("LOCKED");
-        socketRef.send(JSON.stringify({ type: "LOCK_STATE", message: "LOCKED" }));
-      }
+    if (socketRef?.readyState === WebSocket.OPEN) {
+      const newState = lockState === "LOCKED" ? "UNLOCKED" : "LOCKED";
+      setLockState(newState);
+      socketRef.send(JSON.stringify({ type: "LOCK_STATE", message: newState }));
     }
   };
 
   const handleWakeUp = () => {
-    if (socketRef && socketRef.readyState === WebSocket.OPEN) {
+    if (socketRef?.readyState === WebSocket.OPEN) {
       stopAlarm();
       socketRef.send(JSON.stringify({ type: "DROWSINESS_STATE", message: "AWAKE" }));
       setDriverState("AWAKE");
@@ -213,67 +239,96 @@ export default function HomePage() {
     }
   };
 
+  const toggleSection = () => {
+    setActiveSection(activeSection === "homepage" ? "status" : "homepage");
+  };
+
   function CarModel() {
     const gltf = useGLTF("/models/2023_audi_nardo_rs_q8.glb");
-    return (
-      <primitive
-        object={gltf.scene}
-        scale={1.7}
-        position={[0, -5, 0]}
-        rotation={[0, Math.PI, 0]}
-      />
-    );
+    return <primitive object={gltf.scene} scale={1.7} position={[0, -5, 0]} rotation={[0, Math.PI, 0]} />;
   }
 
   return (
     <div className="app-container">
-      <Sidebar 
-        lockState={lockState} 
-        handleLockAndUnlockClick={handleLockAndUnlockClick} 
-      />
-      <div className="homepage-container">
-        <div className="car-container">
-          <Canvas
-            style={{ height: "500px", width: "100%" }}
-            camera={{ position: [100, 10, 100], fov: 11 }}
-          >
-            <ambientLight />
-            <directionalLight position={[50, 50, 50]} />
-            <Suspense fallback={null}>
-              <CarModel />
-            </Suspense>
-            <OrbitControls enableZoom={false} enablePan={false} />
-          </Canvas>
-          <p className="status-text">Lights {lightsState}</p>
-          <p className="status-text">DOORS {lockState}</p>
-        </div>
+      <Sidebar lockState={lockState} handleLockAndUnlockClick={handleLockAndUnlockClick} toggleSection={toggleSection} />
+      <div className="content-wrapper">
+        <AnimatePresence mode="wait">
+          {activeSection === "homepage" ? (
+            <motion.div
+              key="homepage"
+              className="homepage-container"
+              initial={{ x: "100%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: "-100%", opacity: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="car-container">
+                <Canvas style={{ height: "500px", width: "100%" }} camera={{ position: [100, 10, 100], fov: 11 }}>
+                  <ambientLight />
+                  <directionalLight position={[50, 50, 50]} />
+                  <Suspense fallback={null}><CarModel /></Suspense>
+                  <OrbitControls enableZoom={false} enablePan={false} />
+                </Canvas>
+                <p className="status-text">Lights {lightsState}</p>
+                <p className="status-text">DOORS {lockState}</p>
+              </div>
 
-        <div className="driver-info">
-          <div className="driver-details">
-            <div className="status-box" onClick={handleEmojiClick}>
-              <img src={getDriverImage()} alt="Driver State" className="emoji-image" />
-              <p className="status-text">
-                {driverState.charAt(0).toUpperCase() + driverState.slice(1)}
-              </p>
-            </div>
+              <div className="driver-info">
+                <div className="driver-details">
+                  <div className="emoji-box" onClick={handleEmojiClick}>
+                    <img src={getDriverImage()} alt="Driver State" className="emoji-image" />
+                    <p className="status-text">{driverState.charAt(0).toUpperCase() + driverState.slice(1)}</p>
+                  </div>
 
-            <div className="profilee-image-container" onClick={handleProfileClick}>
-              <img src={ellipse} alt="Frame" className="profilee-frame" />
-              {profileImage ? (
-                <img src={profileImage} alt="Driver" className="profilee-image" />
-              ) : (
-                <p>No Image Available</p>
-              )}
-            </div>
-          </div>
+                  <div className="profilee-image-container" onClick={handleProfileClick}>
+                    <img src={ellipse} alt="Frame" className="profilee-frame" />
+                    {profileImage ? (
+                      <img src={profileImage} alt="Driver" className="profilee-image" />
+                    ) : <p>No Image Available</p>}
+                  </div>
+                </div>
 
-          <div className="notifications">
-            <h3>Notifications</h3>
-            <div className={`notification-item ${driverState === "YAWNING" ? "warning" : ""}`}>
-              {notification}
-            </div>
-          </div>
-        </div>
+                <div className="notifications">
+                  <h3>Notifications</h3>
+                  <div className={`notification-item ${driverState === "YAWNING" ? "warning" : ""}`}>
+                    {notification}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="status"
+              className="status-summary-container"
+              initial={{ x: "100%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: "-100%", opacity: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <motion.div className="status-box" initial={{ opacity: 0, x: 100 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
+                <h3>Driver Score</h3>
+                <div className="lottie-container">
+                  <Lottie animationData={getScoreAnimation()} loop autoplay />
+                  <div className="lottie-score">{score ?? "N/A"}</div>
+                </div>
+              </motion.div>
+
+              <motion.div className="status-box" initial={{ opacity: 0, x: 100 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
+                <h3>Emotion Tracker</h3>
+                <div className={`emotion-section emotion-${emotion || "neutral"}`}>
+                  <p className="emotion-text">Driver seems {emotion?.toUpperCase() || "N/A"}</p>
+                  {getEmotionImage() ? <img src={getEmotionImage()} alt={emotion} className="status-img" /> : <p>No Emotion</p>}
+                </div>
+              </motion.div>
+
+              <motion.div className="status-box" initial={{ opacity: 0, x: 100 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.4 }}>
+                <h3>Distraction</h3>
+                <p className="focus-text">{focus?.toUpperCase() || "N/A"}</p>
+                {getFocusImage() ? <img src={getFocusImage()} alt={focus} className="status-img" /> : <p>No Data</p>}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {showWakePrompt && (
@@ -281,9 +336,7 @@ export default function HomePage() {
           <div className="modal">
             <h2>Are you awake?</h2>
             <p>Please confirm you're awake to continue.</p>
-            <button className="confirm-button" onClick={handleWakeUp}>
-              I'm Awake
-            </button>
+            <button className="confirm-button" onClick={handleWakeUp}>I'm Awake</button>
           </div>
         </div>
       )}
@@ -294,6 +347,17 @@ export default function HomePage() {
             <h2>Identifying user...</h2>
             <p>Please wait while we identify the current driver.</p>
           </div>
+        </div>
+      )}
+
+      {isClosingDisplay && (
+        <div className={`closing-screen-overlay ${isFullyBlack ? "fully-black" : ""}`}>
+          {!isFullyBlack && (
+            <div className="closing-modal">
+              <Lottie animationData={success} loop={false} autoplay />
+              <p>Shutting down display...</p>
+            </div>
+          )}
         </div>
       )}
     </div>

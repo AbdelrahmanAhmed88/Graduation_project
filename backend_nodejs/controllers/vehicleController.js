@@ -254,7 +254,8 @@ exports.deleteCurrentDriver = async (req, res) => {
             user_id: null,
             start_time: null,
             drowsiness_state: null,
-            focus_state: null
+            focus_state: null,
+            emotion_state: null
         };
         await vehicle.save();
         return res.status(200).json({ success: true, message: "Current driver deleted successfully" });

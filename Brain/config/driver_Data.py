@@ -52,6 +52,7 @@ class DriverSession:
 
 
     def resetDriverStates(self):
+        self.user_id = ""
         self.drowsiness_state = null
         self.focus_state = null
         self.emotion_state = null
