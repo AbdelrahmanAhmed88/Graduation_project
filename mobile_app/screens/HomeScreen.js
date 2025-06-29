@@ -113,15 +113,21 @@ export default function HomeScreen({ navigation }) {
       ws.onmessage = async (event) => {
         try {
           const msg = JSON.parse(event.data);
-  
-          await Notifications.scheduleNotificationAsync({
-            content: {
-              title: 'Car Alert',
-              body: msg.message || 'New message from car',
-            },
-            trigger: null,
-          });
-          setNotification(msg.message);
+          if(msg.message_title === "MOBILECMD")
+          {
+
+          }
+          else
+          {
+              await Notifications.scheduleNotificationAsync({
+                content: {
+                  title: 'Car Alert',
+                  body: msg.message || 'New message from car',
+                },
+                trigger: null,
+              });
+              setNotification(msg.message);
+          }
           if(msg.control_type === "update_current_user")
           {
             fetchCurrentDriverImage();
@@ -145,6 +151,19 @@ export default function HomeScreen({ navigation }) {
       };
     }, [vin]);
   
+  const sendCMDtoServer = async (cmd) => {
+    if (socket.current && socket.current.readyState === WebSocket.OPEN) {
+      const controlCmd = {
+        vehicle_id: vin,
+        message_title:"MOBILECMD",
+        message: cmd,
+      }
+      socket.current.send(JSON.stringify(controlCmd));
+    } else {
+      console.warn('WebSocket is not open');
+    }
+  };
+
 
   
   useEffect(() => {
@@ -218,39 +237,16 @@ export default function HomeScreen({ navigation }) {
 
               {/* Control Buttons Row */}
               <View style={styles.buttonRow}>
-                <CustomButton icon="lock"/>
-                <CustomButton icon="unlock" onPress={() => navigation.navigate('Control')} />
-                <CustomButton icon="lightbulb-o" onPress={fetchCurrentDriverImage}/>
-                <CustomButton icon="volume-up"  onPress={testing}/>
-                <CustomButton image={require('../assets/fan-icon.png')} />
+                <CustomButton icon="lock" onPress={() => sendCMDtoServer("lock")} />
+                <CustomButton icon="unlock" onPress={() => sendCMDtoServer("unlock")} />
+                <CustomButton icon="lightbulb-o" onPress={() => sendCMDtoServer("lightbulb")} />
+                <CustomButton icon="volume-up" onPress={() => sendCMDtoServer("ALARM")} />
+                <CustomButton image={require('../assets/fan-icon.png')} onPress={() => sendCMDtoServer("fan")} />
               </View>
             </View>
 
             {/* Driver Status and Profile */}
             <View style={styles.container_two}>
-              <View style={styles.profile_status_Container}>
-                <View style={styles.profile_status_buttons}>
-                <TouchableOpacity style={styles.profile_status_buttons}
-                  onPress={() => navigation.navigate('currentDriver', { vin, currentDriverID , scrollTo: 'drowsiness',})}
-                >
-                <Image source={require('../assets/emoji/Awake.png')} style={styles.emoji} />
-                  <Text style={styles.emojiText}>Awake</Text>
-                </TouchableOpacity>
-               </View>
-
-                <View style={styles.profile_status_buttons}>
-                  <TouchableOpacity
-                    style={styles.profileContainer}
-                    onPress={() => navigation.navigate('currentDriver', { vin, currentDriverID,})}
-                  >
-
-                    <View style={styles.outerCircle}>
-                    <Image source={{ uri: imageUrl }} style={styles.profileImage} />
-                    </View>
-                    </TouchableOpacity>
-                </View>
-              </View>
-
               <View style={styles.profile_status_Container}>
                 <TouchableOpacity style={styles.profile_status_buttons}
                   onPress={() => navigation.navigate('currentDriver', { vin, currentDriverID , scrollTo: 'drowsiness',})}
@@ -259,17 +255,30 @@ export default function HomeScreen({ navigation }) {
                   <Text style={styles.emojiText}>Awake</Text>
                 </TouchableOpacity>
                
-                <View style={styles.profile_status_buttons}>
-                  <TouchableOpacity
-                    style={styles.profileContainer}
-                    onPress={() => navigation.navigate('currentDriver', { vin, currentDriverID,})}
-                  >
-
-                    <View style={styles.outerCircle}>
-                    <Image source={{ uri: imageUrl }} style={styles.profileImage} />
-                    </View>
+                {currentDriverID ? (
+                  <View style={styles.profile_status_buttons}>
+                    <TouchableOpacity
+                      style={styles.profileContainer}
+                      onPress={() => navigation.navigate('currentDriver', { vin, currentDriverID })}
+                    >
+                      <View style={styles.outerCircle}>
+                        <Image source={{ uri: imageUrl }} style={styles.profileImage} />
+                      </View>
                     </TouchableOpacity>
-                </View>
+                  </View>
+                ) : (
+                  <View style={styles.profile_status_buttons}>
+                    <TouchableOpacity
+                      style={styles.profileContainer}
+                      onPress={fetchCurrentDriverImage}
+                    >
+                      <View style={styles.outerCircle}>
+                        <Image source={require('../assets/no_driver.png')} style={styles.profileImage} />
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                )}
+
               </View>
 
               {/* Notification Bar */}

@@ -22,7 +22,6 @@ export default function ChangeAdminInfo() {
           console.log("Fetched Admin Data:", data);
           setFormData({
             name: data.name || "",
-            nfc: data.nfc || "",
             speedLimit: data.speedLimit || "Activated",
             maxSpeed: data.maxSpeed || "",
             aggressive: data.aggressive || "No",
@@ -83,24 +82,15 @@ export default function ChangeAdminInfo() {
               <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
             </label>
           )}
-          <input
-            type="text"
-            name="name"
-            placeholder="Enter Name"
-            value={formData.name}
-            onChange={handleInputChange}
-            className="input-field"
-          />
+          <label className="info-label">
+              Name
+            </label>
         </div>
 
         <div className="separator"></div>
 
         <div className="profile-right">
           <div className="info-container">
-            <div className="info-row">
-              <span className="info-label">NFC ID</span>
-              <input type="text" name="nfc" value={formData.nfc} onChange={handleInputChange} className="info-input" placeholder="Enter NFC ID" />
-            </div>
 
             <div className="info-row">
               <span className="info-label">Speed Limit</span>

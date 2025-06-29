@@ -9,6 +9,7 @@ class VehicleWebSocketClient:
         self.server_url = server_url
         self.ws = None
         self.connected = False
+        self.websocketMsgCallback = None
 
     def connect(self):
         self.ws = websocket.WebSocketApp(
@@ -35,6 +36,8 @@ class VehicleWebSocketClient:
 
     def on_message(self, ws, message):
         print(f"Message from server: {message}")
+        if(self.websocketMsgCallback):
+            self.websocketMsgCallback(message)
 
     def on_close(self, ws, close_status_code, close_msg):
         self.connected = False

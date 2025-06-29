@@ -21,6 +21,7 @@ from screen_connection.screen_websocket_connection import ScreenWebSocketClient
 vehicle_client = VehicleWebSocketClient(vehicle_config.VIN,vehicle_config.WEB_SOCKET_SERVER_URL)
 vehicle_client.connect()
 
+
 screen_client = ScreenWebSocketClient()
 screen_client.connect()
 
@@ -116,8 +117,9 @@ def DDD_callback(message):
             screen_client.display_message("DROWSINESS_STATE", "Asleep")
             vehicle_client.send_message("Drowsiness detected. Please check on the driver to ensure they are okay.")
             session.updateDriverStates("Asleep","Focused")
-            # stop_drowsiness_distraction_detection()
+            reader.send('A')
             print("Drowsiness Action start!")
+
     elif "DISTRACTION" in message:
         if (current_time - last_distracted_time) >= 5:
             is_distracted = False
@@ -153,14 +155,19 @@ def DDD_callback(message):
     elif message in ['Angry', 'Fear', 'Happy', 'Neutral', 'Sad']:
         if message == 'Angry':
             screen_client.display_message("EMOTIONS_STATE", "ANGRY", "Feeling tense? Let's take a few deep breaths together. Safe driving is the best kind of driving.")
+            session.updateDriverStates(emotion_state="Angry")
         elif message == 'Fear':
             screen_client.display_message("EMOTIONS_STATE", "FEAR", "Everything's okay. Drive steady—you're in control. We're here with you.")
+            session.updateDriverStates(emotion_state="Fear")
         elif message == 'Happy':
             screen_client.display_message("EMOTIONS_STATE", "HAPPY","Love the good vibes! Keep smiling and drive safe.")
+            session.updateDriverStates(emotion_state="Happy")
         elif message == 'Neutral':
             screen_client.display_message("EMOTIONS_STATE", "NEUTRAL","Smooth and steady. You're doing great—let's keep it that way.")
+            session.updateDriverStates(emotion_state="Neutral")
         elif message == 'Sad':
             screen_client.display_message("EMOTIONS_STATE", "SAD", "Tough moment? You're not alone. Let's focus on the road—better times ahead.")
+            session.updateDriverStates(emotion_state="Sad")
         else:
             print("Unknown emotion")
 
@@ -200,23 +207,11 @@ def auth(user_id, vehicle_id):
     #     print(f"Error opening the website: {e}")
 
 def masterCardAccessHomepage():
-    if(vehicle_config.FIRST_START):
-        openFirstTimeScreen()
-    else:
-        print(f"Opening Homepage for mastercard")
-        url = f"http://localhost:3000/Firsttimelogin2/Firsttimelogin3/HomePage?v={vehicle_config.VIN}"
+    screen_client.display_message("NOTIFICATION", "Vehicle Unlocked by Master Card.")
+    screen_client.display_message("USERCREDENTIALS","Master")
+    vehicle_client.send_message(f"Vehicle Unlocked by Master Card.")
+    # print("URL opened successfully")
         
-        try:
-            # Use webbrowser to open the URL directly in the default browser
-            webbrowser.open(url)
-            time.sleep(2)
-            screen_client.display_message("NOTIFICATION", "Vehicle Unlocked by Master Card.")
-            screen_client.display_message("USERCREDENTIALS","Master")
-            vehicle_client.send_message(f"Vehicle Unlocked by Master Card.")
-            # print("URL opened successfully")
-        except Exception as e:
-            print(f"Error opening the website: {e}")
- 
 
 # Callback function to handle vehicle ID
 def handle_vehicle_id(vehicle_id):
@@ -299,16 +294,17 @@ def on_vehicle_state_change(data, changes):
         screen_client.display_message("DRIVING_SCORE", data.get("driving_score"))
 
     if 'engine_on' in changes and data.get("engine_on") is True:
+        screen_client.display_message("Control", "STARTDISPLAY")
         screen_client.display_message("NOTIFICATION", "Engine started.")
         vehicle_client.send_message("Engine started.")
         reset_drowsiness_flags()
         DrowsinessDistractionDetectionexec(DDD_callback)
-        turned_off = False
 
     if 'engine_on' in changes and data.get("engine_on") is False:
         screen_client.display_message("NOTIFICATION", "Goodbye! Don’t forget your phone")
         vehicle_client.send_message("Don’t forget your phone")
         turned_off = True
+        screen_client.display_message("Control", "ClOSEDISPLAY")
         if(session.user_id != "Master"):
             session.resetDriverStates()
     if 'doors_locked' in changes and data.get("doors_locked") is True:
@@ -316,24 +312,40 @@ def on_vehicle_state_change(data, changes):
             session.resetDriverStates()
             reset_driver_score()
             turned_off = False
-            screen_client.display_message("Control", "ClOSEDISPLAY")
+
+
+import json
+
+def onMobileMsg(msg):
+
+    msg = json.loads(msg)
+
+    if msg.get("message_title") == "MOBILECMD":
+        if msg.get("message") == "ALARM":
+                reader.send('A')
 
 
 
 
-
-
-
-
+vehicle_client.websocketMsgCallback = onMobileMsg
 
 
 # Main program execution
 def main():
-    # if(vehicle_config.FIRST_START == True):
-    #     openFirstTimeScreen()
+    if(vehicle_config.FIRST_START):
+            openFirstTimeScreen()
+    else:
+        url = f"http://localhost:3000/Firsttimelogin2/Firsttimelogin3/HomePage?v={vehicle_config.VIN}"
+            
+        try:
+            # Use webbrowser to open the URL directly in the default browser
+            webbrowser.open(url)
+
+        except Exception as e:
+            print(f"Error opening the website: {e}")
+
 
     start_watching(on_vehicle_state_change)
-    vehicle_client.connect()
     # Create a SerialReader instance
     global reader
     reader = SerialReader(port=vehicle_config.SERIAL_PORT, baudrate=vehicle_config.BAUD_RATE, delimiter=vehicle_config.DELIMITER)

@@ -55,6 +55,7 @@ wss.on('connection', (ws) => {
         // Save to DB (optional)
         await Message.create({
           vehicle_id: msg.vehicle_id,
+          message_title: msg.title || "none",
           message: msg.message
         });
 

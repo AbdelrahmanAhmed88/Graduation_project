@@ -84,6 +84,7 @@ export default function UserProfile({ navigation }) {
         {
           setDrowsinessState(DriverStatus.drowsiness_state.toLowerCase());
           setFocusState(DriverStatus.focus_state.toLowerCase());
+          setEmotionState(DriverStatus.emotion_state.toLowerCase());
           setDrivingDuration(formatDrivingDuration(DriverStatus.start_time));
         }
 

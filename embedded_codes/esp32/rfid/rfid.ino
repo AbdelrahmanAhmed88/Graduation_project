@@ -55,7 +55,14 @@ void loop() {
     } else if (cmd == "L") {
       stmSerial.print(cmd);
       wait_response = false;
+    } else if (cmd == "A") {
+      stmSerial.print(cmd);
+      wait_response = false;
+    } else if (cmd == "S") {
+      stmSerial.print(cmd);
+      wait_response = false;
     }
+    
   }
 
   // Receive from STM32

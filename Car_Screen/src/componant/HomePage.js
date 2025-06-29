@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, Suspense } from "react";
+import React, { useContext, useState, useEffect, Suspense, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
 import "./HomePage.css";
@@ -57,11 +57,28 @@ export default function HomePage() {
   const [isClosingDisplay, setIsClosingDisplay] = useState(false);
   const [isFullyBlack, setIsFullyBlack] = useState(false);
 
+  const alarmAudioRef = useRef(null); // ✅ fix here
+
+  const playAlarm = () => {
+    if (!alarmAudioRef.current) {
+      alarmAudioRef.current = new Audio(alarm);
+      alarmAudioRef.current.loop = true;
+    }
+    alarmAudioRef.current.play().catch(err => console.error("Audio play failed:", err));
+  };
+
+  const stopAlarm = () => {
+    if (alarmAudioRef.current) {
+      alarmAudioRef.current.pause();
+      alarmAudioRef.current.currentTime = 0;
+    }
+  };
+
   useEffect(() => {
     if (isClosingDisplay) {
       const timer = setTimeout(() => {
         setIsFullyBlack(true);
-      }, 3000); // after 3 seconds
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [isClosingDisplay]);
@@ -106,22 +123,6 @@ export default function HomePage() {
     }
   }, [userID]);
 
-  let alarmAudio;
-  const playAlarm = () => {
-    if (!alarmAudio) {
-      alarmAudio = new Audio(alarm);
-      alarmAudio.loop = true;
-    }
-    alarmAudio.play().catch(err => console.error("Audio play failed:", err));
-  };
-
-  const stopAlarm = () => {
-    if (alarmAudio) {
-      alarmAudio.pause();
-      alarmAudio.currentTime = 0;
-    }
-  };
-
   useEffect(() => {
     if (driverState === "ASLEEP") {
       playAlarm();
@@ -142,10 +143,14 @@ export default function HomePage() {
 
         switch (msg.type) {
           case "Control":
-            if(msg.message === "ClOSEDISPLAY")
-                setIsClosingDisplay(true);
-            if(msg.message === "STARTDISPLAY")
-                setIsClosingDisplay(false);
+            if (msg.message === "ClOSEDISPLAY") {
+              setIsFullyBlack(false);
+              setIsClosingDisplay(true);
+            }
+            if (msg.message === "STARTDISPLAY") {
+              setIsClosingDisplay(false);
+              setIsFullyBlack(false);
+            }
             break;
 
           case "USERCREDENTIALS":
@@ -354,7 +359,7 @@ export default function HomePage() {
         <div className={`closing-screen-overlay ${isFullyBlack ? "fully-black" : ""}`}>
           {!isFullyBlack && (
             <div className="closing-modal">
-              <Lottie animationData={success} loop={false} autoplay />
+              <Lottie animationData={successSec} loop={false} autoplay />
               <p>Shutting down display...</p>
             </div>
           )}
