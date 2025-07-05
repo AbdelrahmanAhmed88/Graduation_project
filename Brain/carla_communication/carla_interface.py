@@ -43,6 +43,10 @@ def update_doors_locked_state(mode: bool):
     state["doors_locked"] = mode
     write_state(state)
 
+def get_driver_score():
+    state = read_state()
+    return state["driving_score"]
+
 def reset_driver_score():
     state = read_state()
     state["driving_score"] = 10
@@ -60,4 +64,13 @@ def is_doors_locked():
 def update_door_locked_state(locked: bool):
     state = read_state()
     state["doors_locked"] = locked
+    write_state(state)
+
+def get_assistance_mode():
+    state = read_state()
+    return state["Assistance"]
+
+def update_assistance_mode(mode: bool):
+    state = read_state()
+    state["Assistance"] = mode
     write_state(state)

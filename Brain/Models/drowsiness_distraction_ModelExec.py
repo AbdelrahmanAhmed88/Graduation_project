@@ -17,10 +17,10 @@ def _read_detection_output(callback):
 
 def DrowsinessDistractionDetectionexec(callback):
     global detection_process, detection_thread
-
+    print("drowsiness_distraction_detection started")
     try:
         detection_process = subprocess.Popen(
-            ["python", "-u", "./Models/python_code_exec/drowsiness_distraction_detection/drowsiness&emotion_v1.py"],
+            ["python", "-u", "./Models/python_code_exec/drowsiness_distraction_detection/Driver Monitoring.py"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,

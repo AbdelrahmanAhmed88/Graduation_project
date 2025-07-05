@@ -10,12 +10,12 @@ import CurrentUser from "./componant/CurrentUser";
 import ChangeAdminInfo from "./componant/ChangeAdminInfo";
 import DriverStatePage from "./componant/DriverStatePage";
 import { DrivingProvider } from "./componant/DrivingContext";
-// import { WebSocketProvider } from "./componant/WebSocketContext"; // 👈 add this
+import { WebSocketProvider } from "./context/WebSocketContext"; 
 
 function App() {
   return (
     <DrivingProvider>
-      {/* <WebSocketProvider> 👈 Wrap WebSocket context */}
+      {/* <WebSocketProvider>  */}
         <Router>
           <Routes>
             <Route path="/" element={<FirstTimeLogin1 />} />

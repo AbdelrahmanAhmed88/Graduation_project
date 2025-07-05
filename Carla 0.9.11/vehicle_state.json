@@ -1,9 +1,11 @@
 {
     "engine_on": false,
-    "doors_locked": false,
-    "speed_limit": 150,
+    "doors_locked": true,
+    "speed_limit": 60,
     "driving_score": 10,
     "drowsiness_mode": false,
+    "emotions_mode": false,
+    "Assistance": false,
     "violations": [
         {
             "type": "speeding",

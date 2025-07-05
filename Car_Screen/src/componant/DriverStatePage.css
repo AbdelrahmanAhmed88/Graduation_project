@@ -14,59 +14,102 @@
 .driver-message {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
-  text-align: left;  
+  text-align: left;
+  height: 100%;
 }
 
 .driver-status-label {
-  font-size: 30px;
+  font-size: 50px;
   font-weight: bold;
   color: #A16455;
+  margin-top: 0;
   margin-bottom: 25px;
   padding-bottom: 25px;
+  align-self: flex-start;
+  justify-self: flex-start;
 }
 
-
-.awake-msg {
+.AWAKE-msg {
   color: #0056b3;
   font-weight: bold;
-  font-size: 24px;
+  font-size: 30px;
 }
 
-.yawning-msg {
+.DROWSY-msg {
   color: #E3912C;
   font-weight: bold;
-  font-size: 24px;
+  font-size: 30px;
 }
 
-.sleeping-msg {
+.ASLEEP-msg {
   color: #b30000;
   font-weight: bold;
-  font-size: 24px;
+  font-size: 30px;
 }
 
-.take-break-msg {
-  color: #0056b3;
+.BREAK-msg {
+  color: #E3912C;
   font-weight: bold;
-  font-size: 24px;
+  font-size: 30px;
 }
 
 .image-with-label {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-right: 40px; 
+  margin-right: 40px;
   margin-bottom: 15px;
   margin-top: 40px;
 }
 
 .state-image-icon {
-  width: 420px;
-  height: 420px;
-  margin-bottom: 0px;
-  
+  width: 350px;
+  height: 350px;
+  margin-bottom: 30px;
+  transition: transform 0.3s ease-in-out;
 }
+
+/* Animation keyframes */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(3deg); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* Animation classes */
+.AWAKE-img {
+  animation: pulse 2s infinite;
+}
+
+.DROWSY-img {
+  animation: sway 3s infinite;
+}
+
+.ASLEEP-img {
+  animation: shake 0.8s infinite;
+}
+
+.BREAK-img {
+  animation: blink 2s infinite;
+}
+
 .state-label {
   font-size: 70px;
   font-family: 'Segoe UI', 'Roboto', sans-serif;
@@ -78,13 +121,11 @@
 }
 
 .driver-message span {
-  font-size: 22px;
-  color: #0056b3;
+  font-size: 30px;
 }
 
 .driver-message p {
   margin: 10px 0;
   font-size: 22px;
   line-height: 1.5;
-  
 }

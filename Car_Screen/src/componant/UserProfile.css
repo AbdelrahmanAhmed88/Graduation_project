@@ -111,8 +111,7 @@
 }
 
 /* Inputs and Select Fields */
-.info-input,
-.info-select {
+.info-input {
   background: transparent;
   color:#0056b3;
   border: none;
@@ -123,6 +122,57 @@
   margin-right: 10%;
   outline: none;
   
+}
+.info-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background-color: #1c1c1e; /* system gray dark */
+  color: #e5e5ea; /* light gray text */
+  border: 1px solid #2c2c2e;
+  border-radius: 14px;
+  padding: 12px 2.5rem 12px 1rem;
+  font-size: 17px;
+  font-weight: 500;
+  width: 100%;
+  max-width: 260px;
+  cursor: pointer;
+  transition: 0.25s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' width='16' height='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='20,50 70,100 120,50' fill='none' stroke='%23b0b0b0' stroke-width='15' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 0.8rem;
+}
+
+/* Hover and focus styles */
+.info-select:hover,
+.info-select:focus {
+  background-color: #2c2c2e;
+  border-color: #3a3a3c;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(10,132,255,0.4);
+}
+
+/* Selected/highlighted look */
+.info-select option:checked {
+  background-color: #0a84ff;
+  color: white;
+}
+
+/* Optional: If you want smooth transition for open/close (only on custom dropdowns) */
+.info-select:active {
+  transform: scale(0.99);
+}
+
+.user_name
+{
+  color: #ffe6e6;
+  font-size: 50px;
+  font-weight: bold;
+  margin-top: 5%;
 }
 
 
@@ -197,5 +247,34 @@
 
 .unauthorized-container p {
   font-size: 18px;
+}
+
+.success-message {
+  padding: 0.75rem 1.25rem;
+  background-color: #111;
+  color: #0056b3;
+  border: 1px solid #0056b3;
+  border-radius: 8px;
+  font-size: 2rem;
+  animation: fadeInOut 2s ease-in-out;
+  text-align: center;
+  width: 500px;
+  height: 200px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
+
+/* Optional animation */
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
 }
 

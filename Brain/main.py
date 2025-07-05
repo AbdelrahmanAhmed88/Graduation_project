@@ -2,7 +2,7 @@ from sympy import true
 from serial_reader.reader import SerialReader
 from Models.faceCheckModelExec import face_check, store_encoding
 from Models.drowsiness_distraction_ModelExec import DrowsinessDistractionDetectionexec, stop_drowsiness_distraction_detection
-from carla_communication.carla_interface import update_drowsiness_mode, update_speed_limit ,update_engine_on_state,reset_driver_score,update_doors_locked_state,update_door_locked_state,is_doors_locked
+from carla_communication.carla_interface import update_drowsiness_mode, update_speed_limit ,update_engine_on_state,get_driver_score,reset_driver_score,update_doors_locked_state,update_door_locked_state,is_doors_locked
 import subprocess
 from config import vehicle_config
 from config.driver_Data import session
@@ -46,7 +46,6 @@ def my_callback(userID):
     print(f"Identity detected: {userID}")
     driver_info = get_user_data(userID)
     if(driver_info):
-        reader.send("U")
         session.updateDriverData(driver_info["user"])
         if(session.speed_limit):
             update_speed_limit(session.max_speed)
@@ -91,24 +90,33 @@ need_break = False
 is_yawning = False
 yawn_num = 0
 last_yawn_time = 0
+
+distraction_num = 0
 last_distracted_time = 0
 
+is_fear_detected = False
+
+def is_driving_score_less_than_five():
+    return get_driver_score() < 5
+
+
 def reset_drowsiness_flags():
-    global is_drowsy, is_distracted, is_yawning, yawn_num, last_yawn_time,last_distracted_time
+    global is_drowsy, is_distracted, is_yawning, yawn_num, last_yawn_time,last_distracted_time , distraction_num
     is_drowsy = False
     is_distracted = False
     is_yawning = False
     yawn_num = 0
     last_yawn_time = 0
     last_distracted_time = 0
+    distraction_num = 0
+
     session.updateDriverStates("Awake","Focused")
     update_drowsiness_mode(False)
 
 def DDD_callback(message):
-    global is_drowsy, is_distracted, is_yawning ,yawn_num, last_yawn_time ,last_distracted_time
+    global is_drowsy, is_distracted, is_yawning ,yawn_num, last_yawn_time ,last_distracted_time, distraction_num
 
     current_time = time.time()
-
     if "DROWSINESS" in message:
         if not is_drowsy:
             is_drowsy = True
@@ -126,6 +134,9 @@ def DDD_callback(message):
 
         if not is_distracted:
             is_distracted = True
+            distraction_num += 1
+            if(is_fear_detected and distraction_num == 3):
+                screen_client.display_message("EMOTIONS_STATE", "AUTOPILOT")
             last_distracted_time = current_time  
             session.updateDriverStates(focus_state="Distracted")
             screen_client.display_message("DISTRACTED_STATE", "Distracted")
@@ -133,9 +144,8 @@ def DDD_callback(message):
             print("Distraction Alert!")
 
     elif "YAWNING" in message:
-        if (current_time - last_yawn_time) >= 3:  # Check 3-second cooldown
+        if (current_time - last_yawn_time) >= 2:  # Check 3-second cooldown
             last_yawn_time = current_time  # Update last yawn time
-
             if not is_yawning:
                 if yawn_num == 2:
                     is_yawning = True
@@ -146,6 +156,11 @@ def DDD_callback(message):
                     vehicle_client.send_message("The driver seems drowsy. Please make sure they're safe and alert.")
                     session.updateDriverStates(drowsiness_state="Drowsy")
                     print("Yawning Alert!")
+    elif "FOCUS" in message:
+        is_distracted = False
+        session.updateDriverStates(focus_state="focused")
+        screen_client.display_message("DISTRACTED_STATE", "focused")
+
     elif "NORMAL" in message or "FOCUSED" in message or "AWAKE" in message:
         reset_drowsiness_flags()
         screen_client.display_message("DROWSINESS_STATE", "Awake")
@@ -153,13 +168,29 @@ def DDD_callback(message):
     
     #Emotions part
     elif message in ['Angry', 'Fear', 'Happy', 'Neutral', 'Sad']:
-        if message == 'Angry':
+        if (is_drowsy):
+            print("drwosy priority is higher")
+        elif message == 'Angry':
+            if(is_driving_score_less_than_five()):
+                screen_client.display_message("ASSISTANCE", "SAFETY", "Speed limit reduced to 60 for your safety due to detected anger and low driving score.")
+                vehicle_client.send_message("Speed limit reduced to 60 for your safety due to detected anger and low driving score.")
+                update_speed_limit(60)
+
             screen_client.display_message("EMOTIONS_STATE", "ANGRY", "Feeling tense? Let's take a few deep breaths together. Safe driving is the best kind of driving.")
             session.updateDriverStates(emotion_state="Angry")
         elif message == 'Fear':
+            if(is_distracted and not get_assistance_mode()):
+                screen_client.display_message("EMOTIONS_STATE", "AUTOPILOT")
+                update_assistance_mode(True)
             screen_client.display_message("EMOTIONS_STATE", "FEAR", "Everything's okay. Drive steady—you're in control. We're here with you.")
             session.updateDriverStates(emotion_state="Fear")
+
         elif message == 'Happy':
+            if(is_driving_score_less_than_five()):
+                screen_client.display_message("ASSISTANCE", "SAFETY", "Speed limit reduced to 60 for your safety due to detected Happy and low driving score.")
+                vehicle_client.send_message("Speed limit reduced to 60 for your safety due to detected over Happy and low driving score.")
+                update_speed_limit(60)
+
             screen_client.display_message("EMOTIONS_STATE", "HAPPY","Love the good vibes! Keep smiling and drive safe.")
             session.updateDriverStates(emotion_state="Happy")
         elif message == 'Neutral':
@@ -170,6 +201,8 @@ def DDD_callback(message):
             session.updateDriverStates(emotion_state="Sad")
         else:
             print("Unknown emotion")
+    else:
+        print(message)
 
 
 
@@ -323,7 +356,12 @@ def onMobileMsg(msg):
     if msg.get("message_title") == "MOBILECMD":
         if msg.get("message") == "ALARM":
                 reader.send('A')
-
+        if msg.get("message") == "LOCK":
+            reader.send('L')
+            update_door_locked_state(True)
+        if msg.get("message") == "UNLOCK":
+            reader.send('U')
+            update_door_locked_state(False)
 
 
 

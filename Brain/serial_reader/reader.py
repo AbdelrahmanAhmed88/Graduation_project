@@ -42,7 +42,6 @@ class SerialReader:
 
                     if self.delimiter in self.buffer:
                         full_msg = self.buffer.split(self.delimiter)[0].strip()
-                        #print(f"[SerialReader] Full message: {full_msg}")  # Debug print
                         self.process_message(full_msg)
 
                         with self.lock:
